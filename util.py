@@ -31,10 +31,16 @@ def data_cleaning(file):
     # converting columns to datetime format making sure to handle different time zones
     df['ora_inizio_erogazione'] = pd.to_datetime(df['ora_inizio_erogazione'], utc=True, errors='coerce')
     df['ora_fine_erogazione'] = pd.to_datetime(df['ora_fine_erogazione'], utc=True, errors='coerce')
+    df['data_erogazione'] = pd.to_datetime(df['data_erogazione'], utc=True, errors='coerce')
 
     df['duration'] = (df['ora_fine_erogazione'] - df['ora_inizio_erogazione'])
-    df['quarter'] = df['ora_inizio_erogazione'].dt.quarter
-    df['year'] = df['ora_inizio_erogazione'].dt.year
+    df['quarter'] = df['data_erogazione'].dt.quarter
+    df['year'] = df['data_erogazione'].dt.year
+
+    # Imputa i valori mancanti nella colonna "duration" con la media dei valori presenti
+    mean_duration = df['duration'].mean()
+    df['duration'].fillna(mean_duration, inplace=True)
+
     print(df[['ora_inizio_erogazione', 'duration', 'quarter', 'year']].head())
 
     # print(df.head())
