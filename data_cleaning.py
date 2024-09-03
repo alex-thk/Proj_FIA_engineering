@@ -4,13 +4,13 @@ import scipy.stats as stats
 
 
 class DataCleaning:
-    def __init__(self, file):
-        self.file = file
-        self.df = pd.read_parquet(file)
+    def __init__(self, df):
+        self.df = df
 
     def show_head(self):
         print(self.df.head())
-        print(self.df[['duration', 'quarter', 'year']].head())
+        print(self.df[['duration', 'quarter', 'year', 'age']].head())
+        print(self.df.info())
 
     def calculate_precentage_missing_values_in_df(self):
         print(f'if no missing values are printed, then there are no missing values in the dataset')
@@ -26,14 +26,6 @@ class DataCleaning:
         # Substitute "data_disdetta" with boolean values
         self.df['data_disdetta'] = self.df['data_disdetta'].notnull()
 
-    def remove_insignificant_columns(self):
-        # removing all records with missing values in the column 'comune_residenza'
-        # a 0.03% of the total records will be removed (not a big deal)
-        self.df.dropna(subset=['comune_residenza'], inplace=True)
-
-        # 'ora_inizio_erogazione' and 'ora_fine_erogazione' columns are not useful anymore
-        # since now we have the 'duration' column
-        self.df.drop(columns=['ora_inizio_erogazione', 'ora_fine_erogazione'], inplace=True)  # inplace=True to modify the original dataframe
 
     def add_relevant_columns(self):
         # adding relevant colmuns to the dataframe
@@ -41,10 +33,13 @@ class DataCleaning:
         self.df['ora_inizio_erogazione'] = pd.to_datetime(self.df['ora_inizio_erogazione'], utc=True, errors='coerce')
         self.df['ora_fine_erogazione'] = pd.to_datetime(self.df['ora_fine_erogazione'], utc=True, errors='coerce')
         self.df['data_erogazione'] = pd.to_datetime(self.df['data_erogazione'], utc=True, errors='coerce')
+        self.df['data_nascita'] = pd.to_datetime(self.df['data_nascita'], utc=True, errors='coerce')
 
         self.df['duration'] = (self.df['ora_fine_erogazione'] - self.df['ora_inizio_erogazione'])
         self.df['quarter'] = self.df['data_erogazione'].dt.quarter
         self.df['year'] = self.df['data_erogazione'].dt.year
+        self.df['age'] = (self.df['data_erogazione'] - self.df['data_nascita'])
+        self.df['age'] = np.floor(self.df['age'].dt.days / 365)
 
     def impute_missing_values(self):
 
