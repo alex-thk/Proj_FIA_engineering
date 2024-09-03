@@ -12,6 +12,9 @@ class DataCleaning:
         print(self.df.head())
         print(self.df[['duration', 'quarter', 'year']].head())
 
+    def show_info(self):
+        print(self.df.info())
+
     def calculate_precentage_missing_values_in_df(self):
         print(f'if no missing values are printed, then there are no missing values in the dataset')
         for column in self.df.columns:
