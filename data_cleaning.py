@@ -4,64 +4,84 @@ import scipy.stats as stats
 
 
 class DataCleaning:
-    def __init__(self, df):
-        self.df = df
+    def __init__(self):
+        pass
 
-    def show_head(self):
-        print(self.df.head())
-        print(self.df[['duration', 'quarter', 'year', 'age']].head())
-        print(self.df.info())
+    @staticmethod
+    def show_head(df:pd.DataFrame) -> pd.DataFrame:
+        print(df.head())
+        print(df[['duration', 'quarter', 'year', 'age']].head())
+        print(df.info())
+        return df
 
-    def calculate_precentage_missing_values_in_df(self):
+    @staticmethod
+    def calculate_precentage_missing_values_in_df(df:pd.DataFrame):
         print(f'if no missing values are printed, then there are no missing values in the dataset')
-        for column in self.df.columns:
-            missing_values = self.df[column].isnull().sum()
-            total_values = self.df[column].shape[0]
+        for column in df.columns:
+            missing_values = df[column].isnull().sum()
+            total_values = df[column].shape[0]
             percentage = (missing_values / total_values) * 100
             if percentage > 0:
                 print(f'Percentage of missing values in {column} is {np.round(percentage, 2)}%')
         print(f'DONE!')
 
-    def handle_last_column(self):
+    @staticmethod
+    def handle_last_column(df: pd.DataFrame) -> pd.DataFrame:
         # Substitute "data_disdetta" with boolean values
-        self.df['data_disdetta'] = self.df['data_disdetta'].notnull()
+        df['data_disdetta'] = df['data_disdetta'].notnull()
+        return df
 
 
-    def add_relevant_columns(self):
+    @staticmethod
+    def add_relevant_columns(df: pd.DataFrame) -> pd.DataFrame:
         # adding relevant colmuns to the dataframe
         # converting columns to datetime format making sure to handle different time zones
-        self.df['ora_inizio_erogazione'] = pd.to_datetime(self.df['ora_inizio_erogazione'], utc=True, errors='coerce')
-        self.df['ora_fine_erogazione'] = pd.to_datetime(self.df['ora_fine_erogazione'], utc=True, errors='coerce')
-        self.df['data_erogazione'] = pd.to_datetime(self.df['data_erogazione'], utc=True, errors='coerce')
-        self.df['data_nascita'] = pd.to_datetime(self.df['data_nascita'], utc=True, errors='coerce')
+        df['ora_inizio_erogazione'] = pd.to_datetime(df['ora_inizio_erogazione'], utc=True, errors='coerce')
+        df['ora_fine_erogazione'] = pd.to_datetime(df['ora_fine_erogazione'], utc=True, errors='coerce')
+        df['data_erogazione'] = pd.to_datetime(df['data_erogazione'], utc=True, errors='coerce')
+        df['data_nascita'] = pd.to_datetime(df['data_nascita'], utc=True, errors='coerce')
 
-        self.df['duration'] = (self.df['ora_fine_erogazione'] - self.df['ora_inizio_erogazione'])
-        self.df['quarter'] = self.df['data_erogazione'].dt.quarter
-        self.df['year'] = self.df['data_erogazione'].dt.year
-        self.df['age'] = (self.df['data_erogazione'] - self.df['data_nascita'])
-        self.df['age'] = np.floor(self.df['age'].dt.days / 365)
+        df['duration'] = (df['ora_fine_erogazione'] - df['ora_inizio_erogazione'])
+        df['quarter'] = df['data_erogazione'].dt.quarter
+        df['year'] = df['data_erogazione'].dt.year
+        df['age'] = (df['data_erogazione'] - df['data_nascita'])
+        df['age'] = np.floor(df['age'].dt.days / 365)
+        return df
 
-    def impute_missing_values(self):
+    @staticmethod
+    def impute_missing_values(df: pd.DataFrame) -> pd.DataFrame:
 
         # ----- duration column -----
         # mean and std of standard distribution of the duration column
-        vector_distrib = self.df['duration'].dropna()
+        vector_distrib = df['duration'].dropna()
         mu, std = stats.norm.fit(vector_distrib.dt.total_seconds())
         # print(f'Mean: {mu}, Std: {std}')
         # creating a vector of random values with the same mean and std of the duration column
         # the size of the vector is equal to the number of missing values in the duration column
-        random_durations = np.random.normal(loc=mu, scale=std, size=self.df['duration'].isnull().sum())
+        random_durations = np.random.normal(loc=mu, scale=std, size=df['duration'].isnull().sum())
         # replacing the missing values with the random values
-        self.df.loc[self.df['duration'].isnull(), 'duration'] = random_durations
+        df.loc[df['duration'].isnull(), 'duration'] = random_durations
 
         # ----- codice_provincia_residenza column -----
-        missing_codice = self.df['codice_provincia_erogazione'].isnull()
-        corresponding_provincia = self.df.loc[missing_codice, 'provincia_erogazione']
+        missing_codice = df['codice_provincia_erogazione'].isnull()
+        corresponding_provincia = df.loc[missing_codice, 'provincia_erogazione']
         # print(corresponding_provincia.unique())
-        self.df['codice_provincia_erogazione'].fillna('NA', inplace=True)
+        df['codice_provincia_erogazione'].fillna('NA', inplace=True)
 
         # ----- codice_provincia_erogazione column -----
-        missing_codice2 = self.df['codice_provincia_residenza'].isnull()
-        corresponding_provincia2 = self.df.loc[missing_codice2, 'provincia_residenza']
+        missing_codice2 = df['codice_provincia_residenza'].isnull()
+        corresponding_provincia2 = df.loc[missing_codice2, 'provincia_residenza']
         # print(corresponding_provincia2.unique())
-        self.df['codice_provincia_residenza'].fillna('NA', inplace=True)
+        df['codice_provincia_residenza'].fillna('NA', inplace=True)
+
+        return df
+
+    @staticmethod
+    def handle_cancelled_appointments(df: pd.DataFrame) -> pd.DataFrame:
+        # handling cancelled appointments
+        # if the appointment has been cancelled, then the 'data_disdetta' column is True
+        # otherwise the appointment was not cancelled
+        # wherever data_disdetta is True duration must be 0
+        df.loc[df['data_disdetta'], 'duration'] = 0
+        df = df[df['duration'] != 0]
+        return df

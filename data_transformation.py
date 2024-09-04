@@ -2,18 +2,19 @@ import pandas as pd
 
 
 class DataTransformation:
-    def __init__(self, df):
-        self.df = df
+    def __init__(self):
+        pass
 
-    def transform_col(self, column, mapping, new_col_name):
-        self.df[column + '_tuple'] = list(zip(self.df[column], self.df[column].map(mapping)))
-        self.df[column] = self.df[column + '_tuple']
+    @staticmethod
+    def transform_col(df: pd.DataFrame, column, mapping, new_col_name) -> pd.DataFrame:
+        df[column + '_tuple'] = list(zip(df[column], df[column].map(mapping)))
+        df[column] = df[column + '_tuple']
         # lambda function extracts the second element of the tuple and apply applies it to the column
-        self.df[new_col_name] = self.df[column].apply(lambda x: x[1])
+        df[new_col_name] = df[column].apply(lambda x: x[1])
+        return df
 
-        print(self.df[[column, new_col_name]].head())
-
-    def create_dummies(self, column):
-        dummies = pd.get_dummies(self.df[column], prefix=column)
-        self.df = pd.concat([self.df, dummies], axis=1)
-        self.df.drop(columns=[column], inplace=True)
+    @staticmethod
+    def create_dummies(df: pd.DataFrame, column) -> pd.DataFrame:
+        df = pd.get_dummies(df, columns=[column])
+        # print(.df.info())
+        return df
