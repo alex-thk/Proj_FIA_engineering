@@ -8,14 +8,14 @@ class DataCleaning:
         pass
 
     @staticmethod
-    def show_head(df:pd.DataFrame) -> pd.DataFrame:
+    def show_head(df: pd.DataFrame) -> pd.DataFrame:
         print(df.head())
         print(df[['duration', 'quarter', 'year', 'age']].head())
         print(df.info())
         return df
 
     @staticmethod
-    def calculate_precentage_missing_values_in_df(df:pd.DataFrame):
+    def calculate_precentage_missing_values_in_df(df: pd.DataFrame):
         print(f'if no missing values are printed, then there are no missing values in the dataset')
         for column in df.columns:
             missing_values = df[column].isnull().sum()
@@ -31,7 +31,6 @@ class DataCleaning:
         df['data_disdetta'] = df['data_disdetta'].notnull()
         return df
 
-
     @staticmethod
     def add_relevant_columns(df: pd.DataFrame) -> pd.DataFrame:
         # adding relevant colmuns to the dataframe
@@ -42,6 +41,13 @@ class DataCleaning:
         df['data_nascita'] = pd.to_datetime(df['data_nascita'], utc=True, errors='coerce')
 
         df['duration'] = (df['ora_fine_erogazione'] - df['ora_inizio_erogazione'])
+        # Keep only rows where the duration is a valid Timedelta
+        df = df[df['duration'].apply(lambda x: isinstance(x, pd.Timedelta))]
+        # turning the duration column into minutes
+        df['duration_minutes'] = df['duration'].apply(lambda x: x.total_seconds() / 60)
+
+
+
         df['quarter'] = df['data_erogazione'].dt.quarter
         df['year'] = df['data_erogazione'].dt.year
         df['age'] = (df['data_erogazione'] - df['data_nascita'])
@@ -82,6 +88,5 @@ class DataCleaning:
         # if the appointment has been cancelled, then the 'data_disdetta' column is True
         # otherwise the appointment was not cancelled
         # wherever data_disdetta is True duration must be 0
-        df.loc[df['data_disdetta'], 'duration'] = 0
-        df = df[df['duration'] != 0]
+        df = df[df['data_disdetta'] == False]
         return df

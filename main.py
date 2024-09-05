@@ -83,6 +83,6 @@ if __name__ == '__main__':
     # now we have created dummies for the "medical area of the professional", the "residence area of the patient" and the "area where the service was provided"
 
     # removing other columns insignificant to our analysis
-    # df = reducer.remove_insignificant_columns(['data_disdetta', 'descrizione_attivita', 'codice_descrizione_attivita', 'tipologia_struttura_erogazione', 'codice_tipologia_struttura_erogazione', 'data_erogazione'])
+    df = reducer.remove_insignificant_columns(df, ['data_disdetta', 'duration', 'descrizione_attivita', 'codice_descrizione_attivita', 'tipologia_struttura_erogazione', 'codice_tipologia_struttura_erogazione', 'data_erogazione'])
 
     print(df.info())
