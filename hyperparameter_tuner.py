@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import ParameterGrid
 from sklearn.datasets import make_blobs
-from Proj_FIA_engineering.clustering_model import ClusteringModel
-from Proj_FIA_engineering.objective_function import ObjectiveFunction
+from clustering_model import ClusteringModel
+from objective_function import ObjectiveFunction
 
 
 class HyperparameterTuner:
@@ -14,7 +14,7 @@ class HyperparameterTuner:
         :param algorithm: Nome dell'algoritmo, ad esempio 'kmeans'
         :param param_grid: Dizionario con gli iperparametri da ottimizzare
         :param data: Dataset su cui effettuare il clustering (in formato DataFrame)
-        :param labels: Etichette corrette per valutare la funzione obiettivo
+        :param labels: Etichette corrette per valutare la funzione obiettivo (in formato numpy array)
         """
         self.algorithm = algorithm
         self.param_grid = param_grid
@@ -71,4 +71,5 @@ if __name__ == "__main__":
 
     # Eseguiamo il Grid Search per trovare la combinazione migliore di iperparametri
     best_params, best_score = tuner.perform_grid_search()
+
 

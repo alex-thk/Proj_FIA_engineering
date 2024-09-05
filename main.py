@@ -133,11 +133,13 @@ if __name__ == '__main__':
 
     # Definizione della griglia di iperparametri per il tuning
     param_grid = {
-        'n_clusters': [2, 3, 4, 5],  # numero di cluster che vogliamo testare
+        'n_clusters': [2, 3, 4],  # numero di cluster che vogliamo testare
     }
 
+    print(final_dataset_with_increments.info())
+
     # Estrai la colonna "incremento" da final_dataset_with_increments e crea un array numpy 1D
-    labels = final_dataset_with_increments['incremento'].to_numpy()
+    labels = final_dataset_with_increments['cluster_increment'].to_numpy()
 
     print("Istanzio classe HyperparameterTuner..")
     # Istanzia il tuner per KMeans
