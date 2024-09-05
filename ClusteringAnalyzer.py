@@ -164,13 +164,15 @@ class ClusteringAnalyzer:
 
         return clustering_results
 
-    def calculate_cluster_increment(self, clustering_results):
+    def calculate_cluster_increment(self, grouped_data, clustering_results):
         """
-        Calcola l'incremento nel numero di campioni che appartengono a cluster simili negli anni successivi.
+        Calcola l'incremento nel numero di campioni che appartengono a cluster simili negli anni successivi
+        e aggiunge questo incremento come nuova feature al dataset originale.
+        :param grouped_data: dizionario con i dati suddivisi per anno e quadrimestre.
         :param clustering_results: dizionario con i risultati del clustering per ogni gruppo.
-        :return: dizionario con l'incremento per ogni quadrimestre.
+        :return: dataframe aggiornato con la nuova feature 'cluster_increment'.
         """
-        increments = {}
+        increments = []
 
         # Compara i cluster tra anni per lo stesso quadrimestre
         for quarter in set(k[1] for k in clustering_results.keys()):
@@ -183,18 +185,23 @@ class ClusteringAnalyzer:
                     labels_prev = clustering_results[(year_prev, quarter)]
                     labels_curr = clustering_results[(year_curr, quarter)]
 
-                    # Confronta i cluster tra i due anni (puoi usare una metrica di similarità tra etichette o centroidi)
+                    # Confronta i cluster tra i due anni (puoi usare una metrica di similarità tra etichette)
                     similarity = np.sum(labels_prev == labels_curr) / len(labels_prev)
 
                     # Calcola l'incremento
                     increment = len(labels_curr) - len(labels_prev)
 
-                    # Salva l'incremento per il quadrimestre
-                    if quarter not in increments:
-                        increments[quarter] = []
-                    increments[quarter].append(increment)
+                    # Aggiungi la nuova feature 'cluster_increment' al dataset corrente
+                    data_curr = grouped_data[(year_curr, quarter)].copy()
+                    data_curr['cluster_increment'] = increment
 
-        return increments
+                    # Aggiungi i dati con l'incremento alla lista degli incrementi
+                    increments.append(data_curr)
+
+        # Combina tutti i dati con incrementi in un unico dataframe
+        final_dataset_with_increments = pd.concat(increments)
+
+        return final_dataset_with_increments
 
 
 def main():
@@ -222,12 +229,13 @@ def main():
                                                                                        optimal_k_for_quarters,
                                                                                        significant_features)
 
-    # Step 6: Calcola l'incremento nei cluster tra gli anni per ogni quadrimestre
-    increments = analyzer.calculate_cluster_increment(clustering_results_significant)
+    # Step 5: Calcola l'incremento nei cluster e crea il dataset finale con la nuova feature
+    final_dataset_with_increments = analyzer.calculate_cluster_increment(grouped_data_dict,
+                                                                         clustering_results_significant)
 
-    # Visualizza o salva i risultati
-    print("Incremento nei cluster tra anni diversi per ogni quadrimestre:")
-    print(increments)
+    # Step 6: Visualizza o salva il dataset finale
+    print("Dataset finale con incremento dei cluster:")
+    print(final_dataset_with_increments)
 
 
 if __name__ == "__main__":
