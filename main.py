@@ -5,6 +5,7 @@ import pandas as pd
 from data_reduction import DataReduction
 from data_cleaning import DataCleaning
 from data_transformation import DataTransformation
+from data_standardization import FeatureScaler
 
 if __name__ == '__main__':
     file = 'challenge_campus_biomedico_2024.parquet'
@@ -84,5 +85,9 @@ if __name__ == '__main__':
 
     # removing other columns insignificant to our analysis
     df = reducer.remove_insignificant_columns(df, ['data_disdetta', 'duration', 'descrizione_attivita', 'codice_descrizione_attivita', 'tipologia_struttura_erogazione', 'codice_tipologia_struttura_erogazione', 'data_erogazione'])
+
+    # now onto standardization
+    scaler = FeatureScaler()
+    df = scaler.standardize(df, ['age', 'duration_minutes'])
 
     print(df.info())
