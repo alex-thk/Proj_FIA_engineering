@@ -3,8 +3,8 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import ParameterGrid
 from sklearn.datasets import make_blobs
-from Proj_FIA_engineering.clustering_model import ClusteringModel
-from Proj_FIA_engineering.objective_function import ObjectiveFunction
+from clustering_model import ClusteringModel
+from objective_function import ObjectiveFunction
 
 
 class HyperparameterTuner:

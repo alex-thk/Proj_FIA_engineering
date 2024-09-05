@@ -219,7 +219,7 @@ class ClusteringAnalyzer:
         return final_dataset_with_increments
 
 
-def main():
+"""def main():
     # Caricamento del dataset
     dataset = pd.read_csv('path_to_your_dataset.csv')
 
@@ -255,3 +255,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+"""
