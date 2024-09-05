@@ -100,6 +100,13 @@ class ClusteringAnalyzer:
                         data_prev = grouped_data[(year_prev, quarter)][[feature_name]]
                         data_curr = grouped_data[(year_curr, quarter)][[feature_name]]
 
+                        # Prendi il numero minimo di campioni tra i due anni
+                        min_samples = min(len(data_prev), len(data_curr))
+
+                        # Campiona gli stessi campioni da entrambi i set
+                        data_prev = data_prev.sample(n=min_samples, random_state=42)
+                        data_curr = data_curr.sample(n=min_samples, random_state=42)
+
                         # Recupera il numero ottimale di cluster per il quadrimestre
                         k_optimal = optimal_k_for_quarters[quarter]
 
@@ -185,14 +192,22 @@ class ClusteringAnalyzer:
                     labels_prev = clustering_results[(year_prev, quarter)]
                     labels_curr = clustering_results[(year_curr, quarter)]
 
-                    # Confronta i cluster tra i due anni (puoi usare una metrica di similarità tra etichette)
+                    # Prendi il numero minimo di campioni tra i due anni
+                    min_samples = min(len(labels_prev), len(labels_curr))
+
+                    # Riduci entrambi i vettori di etichette allo stesso numero di campioni
+                    labels_prev = labels_prev[:min_samples]
+                    labels_curr = labels_curr[:min_samples]
+
+                    # Confronta i cluster tra i due anni
                     similarity = np.sum(labels_prev == labels_curr) / len(labels_prev)
 
-                    # Calcola l'incremento
+                    # Calcola l'incremento nel numero di campioni appartenenti a cluster simili
                     increment = len(labels_curr) - len(labels_prev)
 
                     # Aggiungi la nuova feature 'cluster_increment' al dataset corrente
                     data_curr = grouped_data[(year_curr, quarter)].copy()
+                    data_curr = data_curr.iloc[:min_samples]  # Allinea anche il numero di righe nel dataset
                     data_curr['cluster_increment'] = increment
 
                     # Aggiungi i dati con l'incremento alla lista degli incrementi

@@ -1,11 +1,10 @@
-from idlelib.pyparse import trans
-
 import pandas as pd
 
 from data_reduction import DataReduction
 from data_cleaning import DataCleaning
 from data_transformation import DataTransformation
 from data_standardization import FeatureScaler
+from ClusteringAnalyzer import ClusteringAnalyzer
 
 if __name__ == '__main__':
     file = 'challenge_campus_biomedico_2024.parquet'
@@ -91,3 +90,43 @@ if __name__ == '__main__':
     df = scaler.standardize(df, ['age', 'duration_minutes'])
 
     print(df.info())
+
+    # Caricamento del dataset
+    dataset = df
+
+    # Inizializzazione dell'analizzatore di clustering
+    analyzer = ClusteringAnalyzer()
+
+    # Suddivisione dei dati per anno e quadrimestre
+    grouped_data = dataset.groupby(['year', 'quarter'])
+    grouped_data_dict = {name: group.drop(columns=['year', 'quarter']) for name, group in grouped_data}
+
+    # Step 1: Determinazione del numero ottimale di cluster per ogni quadrimestre
+    optimal_k_for_quarters = analyzer.find_optimal_k_for_quarters(grouped_data_dict)
+
+    # Step 2: Valutare la stabilità delle feature tra anni diversi per ogni quadrimestre
+    feature_stability = analyzer.evaluate_feature_stability(grouped_data_dict, optimal_k_for_quarters)
+
+    # Step 3: Seleziona le feature significative sulla base della stabilità
+    significant_features = analyzer.select_significant_features(feature_stability, threshold=0.5)
+
+    # Step 4: Rifai il clustering usando solo le feature significative
+    clustering_results_significant = analyzer.apply_clustering_on_significant_features(grouped_data_dict,
+                                                                                       optimal_k_for_quarters,
+                                                                                       significant_features)
+
+    # Step 5: Calcola l'incremento nei cluster e crea il dataset finale con la nuova feature
+    final_dataset_with_increments = analyzer.calculate_cluster_increment(grouped_data_dict,
+                                                                         clustering_results_significant)
+
+    # Step 6: Visualizza o salva il dataset finale
+    print("Dataset finale con incremento dei cluster:")
+    print(final_dataset_with_increments)
+
+    # Show the unique values in the 'cluster_increment' feature
+    cluster_increment_values = final_dataset_with_increments['cluster_increment'].unique()
+
+    # Display the unique values
+    print("Valori unici della feature 'cluster_increment':")
+    print(cluster_increment_values)
+
