@@ -2,13 +2,19 @@ import pandas as pd
 
 
 class DataTransformation:
-    def __init__(self, file):
-        self.file = file
-        self.df = pd.read_parquet(file)
+    def __init__(self):
+        pass
 
-"""    def transform_string_column_to_number(self, column_name, tuple_col):
-        self.df[tuple_col] = self.df[column_name].apply(lambda x: (x, abs(hash(x)) % (10 ** 8)))  # hashing the string
-        self.df.insert(self.df.columns.get_loc(column_name) + 1, tuple_col, self.df.pop(tuple_col))
-        print(self.df.info())
-        print(self.df[[column_name, tuple_col]].head())
-"""
+    @staticmethod
+    def transform_col(df: pd.DataFrame, column, mapping, new_col_name) -> pd.DataFrame:
+        df[column + '_tuple'] = list(zip(df[column], df[column].map(mapping)))
+        df[column] = df[column + '_tuple']
+        # lambda function extracts the second element of the tuple and apply applies it to the column
+        df[new_col_name] = df[column].apply(lambda x: x[1])
+        return df
+
+    @staticmethod
+    def create_dummies(df: pd.DataFrame, column) -> pd.DataFrame:
+        df = pd.get_dummies(df, columns=[column])
+        # print(.df.info())
+        return df
