@@ -2,6 +2,12 @@ import pandas as pd
 import numpy as np
 import scipy.stats as stats
 
+"""
+nvidia-smi --> to check driver and CUDA version 
+
+"""
+
+
 
 class DataCleaning:
     def __init__(self):
@@ -47,8 +53,7 @@ class DataCleaning:
         # turning the duration column into minutes
         df['duration_minutes'] = df['duration'].apply(lambda x: x.total_seconds() / 60)
 
-
-
+        # NB QUARTER IS 3 MONTHS PERIOD
         df['quarter'] = df['data_erogazione'].dt.quarter
         df['year'] = df['data_erogazione'].dt.year
         df['age'] = (df['data_erogazione'] - df['data_nascita'])
