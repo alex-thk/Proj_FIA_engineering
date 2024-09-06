@@ -41,6 +41,38 @@ class ClusteringModel:
             self.model.fit(x, categorical=categorical)
             return self.model.labels_
 
+    def fit_opt(self, x, categorical=None):
+        """
+        Fit the clustering model to the data
+        :param x: dataframe that represents the data to cluster
+        :param categorical: indices of categorical columns (for KPrototypes)
+        :return: dictionary with clustering results and additional info
+        """
+        results = {}
+
+        if self.algorithm == 'kmeans':
+            if not isinstance(x, pd.DataFrame):
+                raise ValueError("Per KMeans, X deve essere un DataFrame numerico")
+
+            self.model.fit(x)
+            results['labels'] = self.model.labels_
+            results['centroids'] = self.model.cluster_centers_
+            results['data'] = x
+
+        elif self.algorithm == 'kprototypes':
+            if not isinstance(x, pd.DataFrame):
+                raise ValueError("Per KPrototypes, X deve essere un DataFrame")
+            if categorical is None:
+                raise ValueError("Per KPrototypes, devi specificare gli indici delle colonne categoriche")
+
+            self.model.fit(x, categorical=categorical)
+            results['labels'] = self.model.labels_
+            results['centroids'] = self.model.cluster_centers_
+            results['data'] = x
+            results['categorical'] = categorical
+
+        return results
+
 
 # Test del KMeans protetto da __name__
 if __name__ == "__main__":
