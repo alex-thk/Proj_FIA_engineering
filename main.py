@@ -158,6 +158,10 @@ if __name__ == '__main__':
     # Estrai la colonna "incremento" da final_dataset_with_increments e crea un array numpy 1D
     labels = final_dataset_with_increments['incremento'].to_numpy()
 
+    print("effettuo feature scaling per la variabile incremento")
+
+    final_dataset_with_increments = scaler.standardize(final_dataset_with_increments, ['incremento'])
+
     print("Istanzio classe HyperparameterTuner..")
 
     # Istanzia il tuner per KMeans
