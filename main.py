@@ -144,10 +144,22 @@ if __name__ == '__main__':
 
     print(final_dataset_with_increments.info())
 
+    # Dizionario per mappare le stringhe ai numeri
+    mapping = {
+        'constant': 0,
+        'low': 1,
+        'medium': 2,
+        'high': 3
+    }
+
+    # Applicazione del mapping alla colonna 'incremento'
+    final_dataset_with_increments['incremento'] = final_dataset_with_increments['incremento'].map(mapping)
+
     # Estrai la colonna "incremento" da final_dataset_with_increments e crea un array numpy 1D
     labels = final_dataset_with_increments['incremento'].to_numpy()
 
     print("Istanzio classe HyperparameterTuner..")
+
     # Istanzia il tuner per KMeans
     tuner = HyperparameterTuner(algorithm='kmeans', param_grid=param_grid, data=final_dataset_with_increments, labels=labels)
 
