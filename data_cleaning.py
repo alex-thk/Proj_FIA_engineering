@@ -33,6 +33,7 @@ class DataCleaning:
 
     @staticmethod
     def add_relevant_columns(df: pd.DataFrame) -> pd.DataFrame:
+        df = df.copy()
         # adding relevant colmuns to the dataframe
         # converting columns to datetime format making sure to handle different time zones
         df['ora_inizio_erogazione'] = pd.to_datetime(df['ora_inizio_erogazione'], utc=True, errors='coerce')
@@ -65,6 +66,7 @@ class DataCleaning:
         # creating a vector of random values with the same mean and std of the duration column
         # the size of the vector is equal to the number of missing values in the duration column
         random_durations = np.random.normal(loc=mu, scale=std, size=df['duration'].isnull().sum())
+        random_durations = pd.to_timedelta(random_durations, unit='s')  # Explicitly cast to timedelta64[ns]
         # replacing the missing values with the random values
         df.loc[df['duration'].isnull(), 'duration'] = random_durations
 
@@ -72,13 +74,13 @@ class DataCleaning:
         missing_codice = df['codice_provincia_erogazione'].isnull()
         corresponding_provincia = df.loc[missing_codice, 'provincia_erogazione']
         # print(corresponding_provincia.unique())
-        df['codice_provincia_erogazione'].fillna('NA', inplace=True)
+        df.loc[:, 'codice_provincia_erogazione'] = df['codice_provincia_erogazione'].fillna('NA')
 
         # ----- codice_provincia_erogazione column -----
         missing_codice2 = df['codice_provincia_residenza'].isnull()
         corresponding_provincia2 = df.loc[missing_codice2, 'provincia_residenza']
         # print(corresponding_provincia2.unique())
-        df['codice_provincia_residenza'].fillna('NA', inplace=True)
+        df.loc[:, 'codice_provincia_residenza'] = df['codice_provincia_residenza'].fillna('NA')
 
         return df
 

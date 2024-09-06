@@ -5,6 +5,7 @@ from data_cleaning import DataCleaning
 from data_transformation import DataTransformation
 from data_standardization import FeatureScaler
 from ClusteringAnalyzer import ClusteringAnalyzer
+from hyperparameter_tuner import HyperparameterTuner
 
 if __name__ == '__main__':
     file = 'challenge_campus_biomedico_2024.parquet'
@@ -129,4 +130,24 @@ if __name__ == '__main__':
     # Display the unique values
     print("Valori unici della feature 'cluster_increment':")
     print(cluster_increment_values)
+
+    # Definizione della griglia di iperparametri per il tuning
+    param_grid = {
+        'n_clusters': [2, 3, 4],  # numero di cluster che vogliamo testare
+    }
+
+    print(final_dataset_with_increments.info())
+
+    # Estrai la colonna "incremento" da final_dataset_with_increments e crea un array numpy 1D
+    labels = final_dataset_with_increments['cluster_increment'].to_numpy()
+
+    print("Istanzio classe HyperparameterTuner..")
+    # Istanzia il tuner per KMeans
+    tuner = HyperparameterTuner(algorithm='kmeans', param_grid=param_grid, data=final_dataset_with_increments, labels=labels)
+
+    print("Inizio la ricerca dell'ottimo..")
+    # Eseguiamo il Grid Search per trovare la combinazione migliore di iperparametri
+    best_params, best_score = tuner.perform_grid_search()
+
+    print("Ricerca terminata")
 

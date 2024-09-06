@@ -7,6 +7,7 @@ import numpy as np
 class ObjectiveFunction:
     def __init__(self, data, labels, cluster_labels):
         """
+        Initialization of the class ObjectiveFunction
         :param data: complete dataset in numpy array
         :param labels: right labels of class incremento in numpy array 1D
         :param cluster_labels: numpy array 1D with cluster labels
