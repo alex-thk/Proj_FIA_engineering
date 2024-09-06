@@ -146,10 +146,10 @@ if __name__ == '__main__':
 
     # Dizionario per mappare le stringhe ai numeri
     mapping = {
-        'constant': 0,
-        'low': 1,
-        'medium': 2,
-        'high': 3
+        'CONSTANT': 0,
+        'LOW': 1,
+        'MEDIUM': 2,
+        'HIGH': 3
     }
 
     # Applicazione del mapping alla colonna 'incremento'
