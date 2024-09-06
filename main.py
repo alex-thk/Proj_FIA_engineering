@@ -120,12 +120,18 @@ if __name__ == '__main__':
     final_dataset_with_increments = analyzer.calculate_cluster_increment(grouped_data_dict,
                                                                          clustering_results_significant)
 
-    # Step 6: Visualizza o salva il dataset finale
-    print("Dataset finale con incremento dei cluster:")
-    print(final_dataset_with_increments)
+    # Step 6: Aggiungi la colonna delle categorie di incremento
+    final_dataset_with_categories = analyzer.add_increment_category(final_dataset_with_increments)
+
+    # Step 7: Salva il dataset finale con la colonna delle categorie
+    final_dataset_with_categories.to_csv('final_dataset_with_categories.csv', index=False)
+
+    # Visualizza il dataset finale
+    print("Dataset finale con incremento dei cluster e categorie:")
+    print(final_dataset_with_categories)
 
     # Show the unique values in the 'cluster_increment' feature
-    cluster_increment_values = final_dataset_with_increments['cluster_increment'].unique()
+    cluster_increment_values = final_dataset_with_increments['incremento numerico'].unique()
 
     # Display the unique values
     print("Valori unici della feature 'cluster_increment':")
