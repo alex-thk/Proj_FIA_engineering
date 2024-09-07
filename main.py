@@ -6,6 +6,7 @@ from data_transformation import DataTransformation
 from data_standardization import FeatureScaler
 from ClusteringAnalyzer import ClusteringAnalyzer
 from hyperparameter_tuner import HyperparameterTuner
+from outlier_detector import outlier_detector
 
 if __name__ == '__main__':
     file = 'challenge_campus_biomedico_2024.parquet'
@@ -85,6 +86,10 @@ if __name__ == '__main__':
 
     # removing other columns insignificant to our analysis
     df = reducer.remove_insignificant_columns(df, ['data_disdetta', 'duration', 'descrizione_attivita', 'codice_descrizione_attivita', 'tipologia_struttura_erogazione', 'codice_tipologia_struttura_erogazione', 'data_erogazione'])
+
+    detector = outlier_detector()
+    df = detector.detect_and_drop_outliers(df, 'age', 0, 100)
+    df = detector.detect_and_drop_outliers(df, 'duration_minutes', 5, 90)
 
     # now onto standardization
     scaler = FeatureScaler()
