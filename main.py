@@ -103,13 +103,20 @@ if __name__ == '__main__':
     grouped_data_dict = {name: group.drop(columns=['year', 'quarter']) for name, group in grouped_data}
 
     # Step 1: Determinazione del numero ottimale di cluster per ogni quadrimestre
-    optimal_k_for_quarters = analyzer.find_optimal_k_for_quarters(grouped_data_dict)
+    analyzer.find_optimal_k_for_quarters(grouped_data_dict)
+    # Dopo aver visualizzato i grafici, scegli manualmente il valore di k per ciascun quadrimestre
+    optimal_k_for_quarters = {
+        1: 2,
+        2: 2,
+        3: 2,
+        4: 2
+    }
 
     # Step 2: Valutare la stabilità delle feature tra anni diversi per ogni quadrimestre
     feature_stability = analyzer.evaluate_feature_stability(grouped_data_dict, optimal_k_for_quarters)
 
     # Step 3: Seleziona le feature significative sulla base della stabilità
-    significant_features = analyzer.select_significant_features(feature_stability, threshold=0.5)
+    significant_features = analyzer.select_significant_features(feature_stability, threshold=0)
 
     # Step 4: Rifai il clustering usando solo le feature significative
     clustering_results_significant = analyzer.apply_clustering_on_significant_features(grouped_data_dict,

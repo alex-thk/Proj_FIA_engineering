@@ -37,11 +37,6 @@ class ClusteringAnalyzer:
         return distortions
 
     def find_optimal_k_for_quarters(self, grouped_data):
-        """
-        Determina il numero ottimale di cluster per ogni quadrimestre usando la media delle distorsioni
-        :param grouped_data: dizionario con i dati suddivisi per anno e quadrimestre.
-        :return: dizionario con il numero ottimale di cluster per ogni quadrimestre.
-        """
         quarter_distortions = {}
 
         # Calcola le distorsioni per ogni gruppo di dati
@@ -56,14 +51,6 @@ class ClusteringAnalyzer:
         for quarter, distortions_list in quarter_distortions.items():
             mean_distortions = np.mean(distortions_list, axis=0)
 
-            # Trova il gomito nel grafico delle distorsioni medie:
-            # la logica è quella di trovare il punto in cui la distorsione media tra un k e il successivo è minore rispetto a quel k e al precedente
-            elbow = next((i for i in range(1, len(mean_distortions) - 1) if
-                          mean_distortions[i - 1] - mean_distortions[i] > mean_distortions[i] - mean_distortions[
-                              i + 1]), 1)
-
-            optimal_k_for_quarters[quarter] = elbow
-
             # Plot per l'Elbow Method con le distorsioni medie
             K = range(1, self.max_clusters + 1)
             plt.figure(figsize=(8, 4))
@@ -73,7 +60,6 @@ class ClusteringAnalyzer:
             plt.title(f'Elbow Method per il quadrimestre {quarter}')
             plt.show()
 
-        return optimal_k_for_quarters
 
     def evaluate_feature_stability(self, grouped_data, optimal_k_for_quarters):
         """
@@ -130,7 +116,7 @@ class ClusteringAnalyzer:
 
         return feature_stability
 
-    def select_significant_features(self, feature_stability, threshold=0.5):
+    def select_significant_features(self, feature_stability, threshold=0):
         """
         Seleziona le feature che hanno una stabilità sopra una certa soglia.
         :param feature_stability: dizionario con la stabilità delle feature.
@@ -140,9 +126,11 @@ class ClusteringAnalyzer:
         significant_features = {}
 
         for quarter, stability_scores in feature_stability.items():
+            print(f"scores: {stability_scores} per il quadrimestre {quarter}")
             significant_features[quarter] = [feature for feature, stability in stability_scores.items() if
-                                             stability > threshold]
+                                             stability >= threshold]
 
+        print(f"Feature significative per ciascun quadrimestre: {significant_features}")
         return significant_features
 
     def apply_clustering_on_significant_features(self, grouped_data, optimal_k_for_quarters, significant_features):
@@ -166,7 +154,12 @@ class ClusteringAnalyzer:
 
                 # Inizializza e addestra il modello KMeans
                 model = KMeans(n_clusters=optimal_k)
-                model.fit(data_filtered)
+                # Verifica se data_filtered è vuoto
+                if data_filtered is None or len(data_filtered) == 0:
+                    raise ValueError("Il dataset filtrato è vuoto.")
+                else:
+                    print(f"Dimensioni del dataset filtrato: {data_filtered.shape}")
+                    model.fit(data_filtered)
 
                 # Salva i risultati del clustering (etichette dei cluster)
                 clustering_results[(year, quarter)] = model.labels_
@@ -183,35 +176,42 @@ class ClusteringAnalyzer:
         :return: dataframe aggiornato con la nuova feature 'incremento numerico'.
         """
         increments = []
-        increment_summary = []  # Per salvare anno, quadrimestre, incremento totale
 
         # Otteniamo il primo anno disponibile per ciascun quadrimestre
         first_year = min(k[0] for k in clustering_results.keys())
+        print(f"Primo anno disponibile per i quarti: {first_year}")
 
         # Compara i cluster tra anni per lo stesso quadrimestre
         for quarter in set(k[1] for k in clustering_results.keys()):
+            print(f"\nElaborazione del trimestre: {quarter}")
             years = sorted(set(k[0] for k in clustering_results.keys() if k[1] == quarter))
+            print(f"Anni disponibili per il trimestre {quarter}: {years}")
 
             # Imposta incremento 0 per l'anno di partenza (2019 nel tuo caso)
             if first_year in years:
+                print(f"Assegno incremento 0 per l'anno: {first_year}, trimestre: {quarter}")
                 data_first_year = grouped_data[(first_year, quarter)].copy()
                 data_first_year['incremento numerico'] = 0  # Assegna incremento 0 per tutti i campioni del primo anno
                 increments.append(data_first_year)
 
-                # Aggiungi il primo anno con incremento 0 al riepilogo
-                increment_summary.append({'year': first_year, 'quarter': quarter, 'total_increment': 0})
-
             if len(years) > 1:
                 for i in range(1, len(years)):
-                    year_prev = years[i - 1]
-                    year_curr = years[i]
-                    labels_prev = clustering_results[(year_prev, quarter)]
-                    labels_curr = clustering_results[(year_curr, quarter)]
+                    year_prev = years[i - 1]  # Anno precedente
+                    year_curr = years[i]  # Anno corrente
+                    print(f"\nConfronto tra {year_prev} e {year_curr} per il trimestre {quarter}")
 
-                    # Per il confronto usiamo un numero minimo di campioni
+                    labels_prev = clustering_results[
+                        (year_prev, quarter)]  # Etichette dei cluster per l'anno precedente
+                    labels_curr = clustering_results[(year_curr, quarter)]  # Etichette dei cluster per l'anno corrente
+
+                    print(f"Numero di campioni nell'anno precedente ({year_prev}): {len(labels_prev)}")
+                    print(f"Numero di campioni nell'anno corrente ({year_curr}): {len(labels_curr)}")
+
+                    # Viene determinato il numero minimo di campioni tra i due anni (min_samples)
                     min_samples = min(len(labels_prev), len(labels_curr))
+                    print(f"Numero minimo di campioni usati per il confronto: {min_samples}")
 
-                    # Campioniamo i dati per avere lo stesso numero di campioni per fare il confronto
+                    # Campionamento per confrontare lo stesso numero di campioni
                     labels_prev_sampled = labels_prev[:min_samples]
                     labels_curr_sampled = labels_curr[:min_samples]
 
@@ -220,9 +220,12 @@ class ClusteringAnalyzer:
                     clusters_curr = np.unique(labels_curr_sampled)
                     similarity_matrix = np.zeros((len(clusters_prev), len(clusters_curr)))
 
+                    print(f"Numero di cluster nell'anno precedente: {len(clusters_prev)}")
+                    print(f"Numero di cluster nell'anno corrente: {len(clusters_curr)}")
+
                     for idx_prev, cluster_prev in enumerate(clusters_prev):
                         for idx_curr, cluster_curr in enumerate(clusters_curr):
-                            # Troviamo i campioni che appartengono a ciascun cluster nel campione
+                            # Troviamo i campioni che appartengono a ciascun cluster
                             cluster_prev_samples = (labels_prev_sampled == cluster_prev)
                             cluster_curr_samples = (labels_curr_sampled == cluster_curr)
 
@@ -230,17 +233,18 @@ class ClusteringAnalyzer:
                             similarity_matrix[idx_prev, idx_curr] = adjusted_rand_score(cluster_prev_samples,
                                                                                         cluster_curr_samples)
 
+                    print(f"Matrice di similarità (ARI) tra cluster:\n{similarity_matrix}")
+
                     # Utilizziamo l'algoritmo di assegnazione per trovare la corrispondenza migliore
                     row_ind, col_ind = linear_sum_assignment(-similarity_matrix)
+                    print(f"Risultato dell'assegnazione: row_ind = {row_ind}, col_ind = {col_ind}")
 
                     # Otteniamo i risultati per ogni cluster corrente
                     data_curr = grouped_data[(year_curr, quarter)].copy()
                     data_curr['incremento numerico'] = 0  # Inizializza l'incremento a 0 per tutti i campioni
 
-                    total_increment = 0  # Variabile per sommare gli incrementi per anno/quadrimestre
-
                     for idx_prev, idx_curr in zip(row_ind, col_ind):
-                        # Ottieni il cluster precedente e corrente dalla corrispondenza trovata
+                        print(f"Processando il cluster {idx_prev} dell'anno precedente e {idx_curr} dell'anno corrente")
                         cluster_prev = clusters_prev[idx_prev]
                         cluster_curr = clusters_curr[idx_curr]
 
@@ -248,9 +252,12 @@ class ClusteringAnalyzer:
                         size_prev_real = np.sum(labels_prev == cluster_prev)
                         size_curr_real = np.sum(labels_curr == cluster_curr)
 
+                        print(f"Numero di campioni nel cluster precedente {cluster_prev}: {size_prev_real}")
+                        print(f"Numero di campioni nel cluster corrente {cluster_curr}: {size_curr_real}")
+
                         # Calcoliamo l'incremento reale in termini di numero di campioni
                         increment = size_curr_real - size_prev_real
-                        total_increment += increment
+                        print(f"Incremento calcolato per il cluster corrente {cluster_curr}: {increment}")
 
                         # Assegna questo incremento solo ai campioni appartenenti al cluster corrente
                         data_curr.loc[labels_curr == cluster_curr, 'incremento numerico'] = increment
@@ -258,18 +265,9 @@ class ClusteringAnalyzer:
                     # Aggiungi i dati con l'incremento alla lista degli incrementi
                     increments.append(data_curr)
 
-                    # Aggiungi l'incremento totale per anno e quadrimestre alla lista di riepilogo
-                    increment_summary.append(
-                        {'year': year_curr, 'quarter': quarter, 'total_increment': total_increment})
-
         # Combina tutti i dati con incrementi in un unico dataframe
         final_dataset_with_increments = pd.concat(increments)
-
-        # Crea un dataframe per salvare il riepilogo anno-quadrimestre-incremento
-        increment_summary_df = pd.DataFrame(increment_summary)
-
-        # Salva il CSV con anno, quadrimestre e incremento
-        increment_summary_df.to_csv('increment_summary.csv', index=False)
+        print("Elaborazione completa, dataset finale creato.")
 
         return final_dataset_with_increments
 
