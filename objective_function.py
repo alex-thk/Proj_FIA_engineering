@@ -22,7 +22,7 @@ class ObjectiveFunction:
         purity_sum = 0
 
         for cluster in set(self.cluster_labels):  # loop over each cluster
-            cluster_indices = np.where(self.cluster_labels == cluster)[0]  # index of points in this cluster
+            cluster_indices = np.where(self.cluster_labels == cluster)[0]  # index of points in this cluster, [0] to get the array of indices of samples in this cluster
             cluster_labels_ = self.labels[cluster_indices]  # true labels of points in this cluster
 
             most_common_class = max(np.bincount(cluster_labels_))  # find the most common class

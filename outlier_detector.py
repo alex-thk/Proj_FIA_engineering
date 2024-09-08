@@ -11,6 +11,6 @@ class outlier_detector():
         pass
 
     @staticmethod
-    def detect_and_drop_outliers(df: pd.DataFrame, column, lb=-np.Inf, ub=np.Inf) -> pd.DataFrame:
+    def detect_and_drop_outliers(df: pd.DataFrame, column, lb=-np.inf, ub=np.inf) -> pd.DataFrame:
         filtered_df = df[(df[column] >= lb) & (df[column] <= ub)]
         return filtered_df
