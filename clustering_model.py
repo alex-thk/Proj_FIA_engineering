@@ -22,31 +22,11 @@ class ClusteringModel:
 
     def fit(self, x, categorical=None):
         """
-        Fit the clustering model to the data
-        :param x: dataframe that represents the data to cluster, with the variable incremento
-        :param categorical:
-        :return: numpy array with cluster labels (1D) with the same order of the input data
-        """
-        if self.algorithm == 'kmeans':
-            if not isinstance(x, pd.DataFrame):
-                raise ValueError("Per KMeans, X deve essere un DataFrame numerico")
-            self.model.fit(x)
-            return self.model.labels_
+        Fit the clustering model to the data and return a dictionary with the clustering results.
 
-        elif self.algorithm == 'kprototypes':
-            if not isinstance(x, pd.DataFrame):
-                raise ValueError("Per KPrototypes, X deve essere un DataFrame")
-            if categorical is None:
-                raise ValueError("Per KPrototypes, devi specificare gli indici delle colonne categoriche")
-            self.model.fit(x, categorical=categorical)
-            return self.model.labels_
-
-    def fit_opt(self, x, categorical=None):
-        """
-        Fit the clustering model to the data
-        :param x: dataframe that represents the data to cluster
-        :param categorical: indices of categorical columns (for KPrototypes)
-        :return: dictionary with clustering results and additional info
+        :param x: DataFrame che rappresenta i dati da clusterizzare.
+        :param categorical: Indici delle colonne categoriche (solo per KPrototypes).
+        :return: Dizionario con labels, centroids.
         """
         results = {}
 
@@ -57,7 +37,6 @@ class ClusteringModel:
             self.model.fit(x)
             results['labels'] = self.model.labels_
             results['centroids'] = self.model.cluster_centers_
-            results['data'] = x
 
         elif self.algorithm == 'kprototypes':
             if not isinstance(x, pd.DataFrame):
@@ -68,8 +47,10 @@ class ClusteringModel:
             self.model.fit(x, categorical=categorical)
             results['labels'] = self.model.labels_
             results['centroids'] = self.model.cluster_centers_
-            results['data'] = x
             results['categorical'] = categorical
+
+        else:
+            raise ValueError(f"Algoritmo {self.algorithm} non supportato")
 
         return results
 

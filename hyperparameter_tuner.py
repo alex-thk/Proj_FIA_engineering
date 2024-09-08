@@ -1,4 +1,3 @@
-import itertools
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import ParameterGrid
@@ -25,10 +24,14 @@ class HyperparameterTuner:
     def perform_grid_search(self):
         """
         Esegue il Grid Search sugli iperparametri per trovare la combinazione ottimale.
-        :return: La migliore combinazione di iperparametri e il relativo punteggio.
+        Salva labels, centroidi e score per ogni combinazione di parametri testati.
+        :return: La migliore combinazione di iperparametri, il relativo punteggio e i risultati del miglior clustering.
         """
         best_score = -np.inf
         best_params = None
+        best_centroids = None
+        best_labels = None
+        all_results = []
 
         # Itera su tutte le combinazioni nella griglia
         for params in self.grid:
@@ -36,24 +39,39 @@ class HyperparameterTuner:
 
             # Istanzia il modello di clustering con i parametri attuali
             clustering_model = ClusteringModel(algorithm=self.algorithm, n_clusters=params['n_clusters'])
-            cluster_labels = clustering_model.fit(self.data)
+            results = clustering_model.fit(self.data)  # fit restituisce labels e centroids
 
             # Calcola la funzione obiettivo
-            objective_function = ObjectiveFunction(data=self.data, labels=self.labels, cluster_labels=cluster_labels)
+            objective_function = ObjectiveFunction(data=self.data, labels=self.labels, cluster_labels=results['labels'])
             score = objective_function.compute_final_score()
+
+            # Salva i risultati per questa combinazione di parametri
+            all_results.append({
+                'params': params,
+                'score': score,
+                'labels': results['labels'],
+                'centroids': results['centroids']
+            })
 
             # Se il punteggio attuale è il migliore, aggiorna
             if score > best_score:
                 best_score = score
                 best_params = params
+                best_labels = results['labels']
+                best_centroids = results['centroids']
 
             print(f"Score for parameters {params}: {score}")
 
-        print(f"Best parameters: {best_params}")
-        print(f"Best score: {best_score}")
-        return best_params, best_score
+        # Restituisce i migliori parametri, il punteggio, il miglior clustering e tutti i risultati
+        return {
+            'best_params': best_params,
+            'best_score': best_score,
+            'best_labels': best_labels,
+            'best_centroids': best_centroids
+        }
 
 
+'''
 # Test del tuner protetto da __name__
 if __name__ == "__main__":
 
@@ -70,6 +88,7 @@ if __name__ == "__main__":
     tuner = HyperparameterTuner(algorithm='kmeans', param_grid=param_grid, data=data_df, labels=labels)
 
     # Eseguiamo il Grid Search per trovare la combinazione migliore di iperparametri
-    best_params, best_score = tuner.perform_grid_search()
+    best_params, best_score, best_clustering = tuner.perform_grid_search()
 
-
+    print(best_params), print(best_score), print(best_clustering)
+'''
