@@ -32,8 +32,16 @@ class ObjectiveFunction:
         return purity_sum / total_elements  # return the purity
 
     def silhouette(self):
+        print("chiamata metodo silhouette..")
         # Calcola l'indice di silhouette per l'intero insieme di dati
         if len(set(self.cluster_labels)) > 1:
+            print("calcolo silhouette entrata nell'if..")
+            print("data: ", self.data)
+            print("cluster_labels: ", self.cluster_labels)
+            # Verifica la lunghezza del dataset
+            print(f"Lunghezza del dataset: {len(self.data)}")
+            # Verifica la lunghezza del vettore delle etichette
+            print(f"Lunghezza delle etichette dei cluster: {len(self.cluster_labels)}")
             return silhouette_score(self.data, self.cluster_labels)
         else:
             return 0  # Se c'è solo un cluster, silhouette non è definito
@@ -44,19 +52,25 @@ class ObjectiveFunction:
 
     def compute_final_score(self):
         # Calcola le metriche normalizzate
+        print("calcolo purita..)")
         purity_score = self.purity()
+
+        print("calcolo silhouette..")
         silhouette_score_ = self.silhouette()
 
         # Normalizzazione delle metriche tra 0 e 1
+        print("normalizzazione dei risultati..")
         normalized_purity = min(max(purity_score, 0), 1)
         normalized_silhouette = min(max(silhouette_score_, 0), 1)
 
         # Calcola la media delle metriche normalizzate e sottrai la penalità
+        print("calcolo del punteggio finale..")
         final_score_ = (normalized_purity + normalized_silhouette) / 2 - self.penalty()
 
         return final_score_
 
 
+"""
 if __name__ == "__main__":
     # Creiamo un piccolo dataset sintetico con make_blobs
     # Generate 2D points from 3 clusters
@@ -80,3 +94,4 @@ if __name__ == "__main__":
     # Calcoliamo il punteggio finale
     final_score = obj_function.compute_final_score()
     print(f"Final Score: {final_score}")
+"""

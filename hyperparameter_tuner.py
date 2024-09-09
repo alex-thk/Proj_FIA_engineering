@@ -37,13 +37,25 @@ class HyperparameterTuner:
         for params in self.grid:
             print(f"Testing parameters: {params}")
 
+            print("istanzio classe clustering model..")
+
             # Istanzia il modello di clustering con i parametri attuali
             clustering_model = ClusteringModel(algorithm=self.algorithm, n_clusters=params['n_clusters'])
+
+            print("faccio fit..")
+
             results = clustering_model.fit(self.data)  # fit restituisce labels e centroids
+
+            print("istanzio la classe Objective funtion..")
 
             # Calcola la funzione obiettivo
             objective_function = ObjectiveFunction(data=self.data, labels=self.labels, cluster_labels=results['labels'])
+
+            print("calcolo il punteggio finale..")
+
             score = objective_function.compute_final_score()
+
+            print("salvo i risultati..")
 
             # Salva i risultati per questa combinazione di parametri
             all_results.append({
@@ -63,6 +75,8 @@ class HyperparameterTuner:
             print(f"Score for parameters {params}: {score}")
 
         # Restituisce i migliori parametri, il punteggio, il miglior clustering e tutti i risultati
+        print(f"parametri che restituisce grid search :{best_params}, {best_score}, {best_labels}, {best_centroids}")
+
         return {
             'best_params': best_params,
             'best_score': best_score,
