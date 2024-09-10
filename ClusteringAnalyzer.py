@@ -116,19 +116,23 @@ class ClusteringAnalyzer:
 
         return feature_stability
 
-    def select_significant_features(self, feature_stability, threshold=0):
+    def select_significant_features(self, feature_stability, top_n=2):
         """
-        Seleziona le feature che hanno una stabilità sopra una certa soglia.
+        Seleziona le prime N feature che hanno la stabilità più alta.
         :param feature_stability: dizionario con la stabilità delle feature.
-        :param threshold: soglia per considerare una feature significativa.
+        :param top_n: numero di feature da selezionare.
         :return: dizionario con le feature significative per ogni quadrimestre.
         """
         significant_features = {}
 
         for quarter, stability_scores in feature_stability.items():
             print(f"scores: {stability_scores} per il quadrimestre {quarter}")
-            significant_features[quarter] = [feature for feature, stability in stability_scores.items() if
-                                             stability >= threshold]
+
+            # Ordina le feature in base ai punteggi di stabilità, dal più alto al più basso
+            sorted_features = sorted(stability_scores.items(), key=lambda x: x[1], reverse=True)
+
+            # Prendi solo le prime 'top_n' feature
+            significant_features[quarter] = [feature for feature, stability in sorted_features[:top_n]]
 
         print(f"Feature significative per ciascun quadrimestre: {significant_features}")
         return significant_features
