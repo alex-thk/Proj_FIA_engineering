@@ -37,7 +37,7 @@ class Visualizer:
             # only including the rows where the incremento is equal to the current incremento (inc_vals)
             df_filtered = df[df[list_of_cols[2]] == incremento]
             axs[i].scatter(df_filtered[list_of_cols[0]], df_filtered[list_of_cols[1]],
-                                     c=df_filtered[list_of_cols[3]], cmap='viridis', marker='o')
+                                     c=df_filtered[list_of_cols[3]], marker='o')
             axs[i].set_title(f'2D Scatter plot for incremento = {incremento}')
             axs[i].set_xlabel(list_of_cols[0])
             axs[i].set_ylabel(list_of_cols[1])
