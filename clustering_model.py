@@ -15,7 +15,7 @@ class ClusteringModel:
         self.model = None  # KMeans or KPrototypes instance
 
         if self.algorithm == 'kmeans':
-            self.model = KMeans(n_clusters=n_clusters, init='k-means++', random_state=45)
+            self.model = KMeans(n_clusters=n_clusters, init='k-means++', random_state=42)
         elif self.algorithm == 'kprototypes':
             self.model = KPrototypes(n_clusters=n_clusters, init='Huang')  # instance of KPrototypes
         else:
