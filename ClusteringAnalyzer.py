@@ -196,6 +196,7 @@ class ClusteringAnalyzer:
                 print(f"Assegno incremento 0 per l'anno: {first_year}, trimestre: {quarter}")
                 data_first_year = grouped_data[(first_year, quarter)].copy()
                 data_first_year['incremento numerico'] = 0  # Assegna incremento 0 per tutti i campioni del primo anno
+                data_first_year['anno'] = first_year  # Aggiungi l'anno come colonna
                 increments.append(data_first_year)
 
             if len(years) > 1:
@@ -246,6 +247,7 @@ class ClusteringAnalyzer:
                     # Otteniamo i risultati per ogni cluster corrente
                     data_curr = grouped_data[(year_curr, quarter)].copy()
                     data_curr['incremento numerico'] = 0  # Inizializza l'incremento a 0 per tutti i campioni
+                    data_curr['anno'] = year_curr  # Aggiungi l'anno come colonna
 
                     for idx_prev, idx_curr in zip(row_ind, col_ind):
                         print(f"Processando il cluster {idx_prev} dell'anno precedente e {idx_curr} dell'anno corrente")
@@ -271,7 +273,15 @@ class ClusteringAnalyzer:
 
         # Combina tutti i dati con incrementi in un unico dataframe
         final_dataset_with_increments = pd.concat(increments)
-        print("Elaborazione completa, dataset finale creato.")
+
+        # Filtra i dati per rimuovere quelli del primo anno (ad esempio, 2019)
+        final_dataset_with_increments = final_dataset_with_increments[
+            final_dataset_with_increments['anno'] != first_year]
+
+        # Rimuovi la colonna 'anno' prima di restituire il dataset
+        final_dataset_with_increments = final_dataset_with_increments.drop(columns=['anno'])
+
+        print("Elaborazione completa, dataset finale creato senza i dati del primo anno e senza la colonna anno.")
 
         return final_dataset_with_increments
 
