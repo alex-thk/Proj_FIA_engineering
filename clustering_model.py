@@ -55,7 +55,7 @@ class ClusteringModel:
 
         return results
 
-
+"""
 # Test del KMeans protetto da __name__
 if __name__ == "__main__":
     # Creiamo dei dati di esempio per testare KMeans
@@ -71,3 +71,4 @@ if __name__ == "__main__":
     # Eseguire il fit sui dati e stampare i cluster risultanti
     labels = kmeans_model.fit(df)
     print("Cluster assegnati:", labels)
+"""

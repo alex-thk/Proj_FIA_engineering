@@ -75,7 +75,7 @@ class HyperparameterTuner:
             print(f"Score for parameters {params}: {score}")
 
         # Restituisce i migliori parametri, il punteggio, il miglior clustering e tutti i risultati
-        print(f"parametri che restituisce grid search :{best_params}, {best_score}, {best_labels}, {best_centroids}")
+        print(f"parametri MIGLIORI che restituisce grid search :{best_params}, {best_score}, {best_labels}, {best_centroids}")
 
         return {
             'best_params': best_params,
