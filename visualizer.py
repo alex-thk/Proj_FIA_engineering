@@ -17,12 +17,17 @@ class Visualizer:
         fig = plt.figure(figsize=(10,8))
         ax = fig.add_subplot(111, projection='3d')
 
-        ax.scatter(df[list_of_cols[0]], df[list_of_cols[1]], df[list_of_cols[2]], c=df[list_of_cols[3]], marker='o')
+        scatter = ax.scatter(df[list_of_cols[0]], df[list_of_cols[1]], df[list_of_cols[2]], c=df[list_of_cols[3]], marker='o')
 
         ax.set_title('3D Scatter plot')
         ax.set_xlabel(list_of_cols[0])
         ax.set_ylabel(list_of_cols[1])
         ax.set_zlabel(list_of_cols[2])
+
+        # Creating a legend
+        handles, labels = scatter.legend_elements()
+        legend_labels = [f'Cluster {int(label)}' for label in df[list_of_cols[3]].unique()]
+        ax.legend(handles, legend_labels, title="Clusters")
 
         plt.show()
 
@@ -36,13 +41,19 @@ class Visualizer:
         for i, incremento in enumerate(inc_vals.tolist()):
             # only including the rows where the incremento is equal to the current incremento (inc_vals)
             df_filtered = df[df[list_of_cols[2]] == incremento]
-            axs[i].scatter(df_filtered[list_of_cols[0]], df_filtered[list_of_cols[1]],
+            scatter = axs[i].scatter(df_filtered[list_of_cols[0]], df_filtered[list_of_cols[1]],
                                      c=df_filtered[list_of_cols[3]], marker='o')
             axs[i].set_title(f'2D Scatter plot for incremento = {incremento}')
             axs[i].set_xlabel(list_of_cols[0])
             axs[i].set_ylabel(list_of_cols[1])
-            axs[i].set_xlim(-4, 4)
-            axs[i].set_ylim(-4, 4)
+
+            # Creating a legend
+            handles, labels = scatter.legend_elements()
+            legend_labels = [f'Cluster {int(label)}' for label in df[list_of_cols[3]].unique()]
+            axs[i].legend(handles, legend_labels, title="Clusters")
+
+            """axs[i].set_xlim(-4, 4)
+            axs[i].set_ylim(-4, 4)"""
 
         plt.tight_layout()
         plt.show()
@@ -51,5 +62,5 @@ class Visualizer:
 if __name__ == '__main__':
     df = pd.read_csv('final_dataset_with_clusters.csv')
     list_of_cols = ['duration_minutes', 'age', 'incremento', 'cluster']
-    # Visualizer.scatter_plot_3d(df, list_of_cols)
+    Visualizer.scatter_plot_3d(df, list_of_cols)
     Visualizer.scatter_plot_2d(df, list_of_cols)
