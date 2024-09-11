@@ -6,11 +6,15 @@ from sklearn.preprocessing import StandardScaler
 
 
 class PostProcessing:
-    def __init__(self, dataframe_for_visuals, dataframe_for_silhouette):
+    def __init__(self, dataframe_for_visuals, dataframe_for_silhouette, best_params, best_score, best_labels, best_centroids):
         self.dataframe = dataframe_for_visuals
         self.dataframe_for_silhouette = dataframe_for_silhouette
         self.dataframes_by_cluster = {}
         self.stats_by_cluster = {}
+        self.best_params = best_params
+        self.best_score = best_score
+        self.best_labels = best_labels
+        self.best_centroids = best_centroids
 
     def process_clusters(self):
 
@@ -72,8 +76,15 @@ class PostProcessing:
 
     def save_stats_to_json(self, file_name='stats_by_cluster.json'):
         # Salva il dizionario stats_by_cluster in un file JSON
+        data_to_save = {
+            'best_params': self.best_params,
+            'best_score': self.best_score,
+            'stats_by_cluster': self.stats_by_cluster,
+            'best_centroids': self.best_centroids.tolist(),  # Converti in lista se è un array numpy
+            'best_labels': self.best_labels.tolist(),  # Converti in lista se è un array numpy
+        }
         with open(file_name, 'w') as f:
-            json.dump(self.stats_by_cluster, f, indent=4)
+            json.dump(data_to_save, f, indent=4)
 
 
 # Esegui il test
