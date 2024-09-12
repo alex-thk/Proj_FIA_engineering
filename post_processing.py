@@ -38,7 +38,9 @@ class PostProcessing:
             conto_sesso_male = df['sesso_male'].sum().item()  # Conteggio dei True nella colonna 'sesso_male'
             conto_sesso_female = df['sesso_female'].sum().item()  # Conteggio dei True nella colonna 'sesso_female'
             conto_nord = df['zona_residenza_Nord'].sum().item()  # Conteggio dei True nella colonna 'Nord'
+            conto_centro_nord = df['zona_residenza_Centro_Nord'].sum().item()
             conto_centro = df['zona_residenza_Centro'].sum().item()  # Conteggio dei True nella colonna 'Centro'
+            conto_centro_sud = df['zona_residenza_Centro_Sud'].sum().item()
             conto_sud = df['zona_residenza_Sud'].sum().item()  # Conteggio dei True nella colonna 'Sud'
 
             numero_record = df.shape[0]
@@ -65,8 +67,10 @@ class PostProcessing:
                 'media_duration_minutes': media_duration,
                 'conto_sesso_male': conto_sesso_male,
                 'conto_sesso_female': conto_sesso_female,
-                'conto_nord': conto_nord,
+                'conto_nord ': conto_nord,
+                'conto_centro_nord': conto_centro_nord,
                 'conto_centro': conto_centro,
+                'conto_centro_sud': conto_centro_sud,
                 'conto_sud': conto_sud,
                 'numero_record': numero_record,
                 'silhouette_media': silhouette_media,
@@ -97,7 +101,9 @@ if __name__ == '__main__':
         'sesso_male': np.random.randint(0, 2, size=100),
         'sesso_female': np.random.randint(0, 2, size=100),
         'zona_residenza_Nord': np.random.randint(0, 2, size=100),
+        'zona_residenza_Centro_Nord': np.random.randint(0, 2, size=100),
         'zona_residenza_Centro': np.random.randint(0, 2, size=100),
+        'zona_residenza_Centro_Sud': np.random.randint(0, 2, size=100),
         'zona_residenza_Sud': np.random.randint(0, 2, size=100),
         'incremento': np.random.randint(0, 4, size=100),
         'cluster': np.random.randint(0, 4, size=100)
@@ -111,8 +117,13 @@ if __name__ == '__main__':
     scaler = StandardScaler()
     dataframe_for_silhouette[features_to_scale] = scaler.fit_transform(dataframe_for_silhouette[features_to_scale])
 
+    best_params = {'n_clusters': 4}
+    best_score = 0.5
+    best_labels = np.random.randint(0, 4, size=100)
+    best_centroids = np.random.rand(4, 3)
+
     # Esegui l'istanza di PostProcessing
-    post_processing = PostProcessing(dataframe_for_visuals, dataframe_for_silhouette)
+    post_processing = PostProcessing(dataframe_for_visuals, dataframe_for_silhouette, best_params, best_score, best_labels, best_centroids)
     post_processing.process_clusters()
 
     # Salva le statistiche in un file JSON
