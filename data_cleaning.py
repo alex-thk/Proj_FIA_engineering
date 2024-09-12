@@ -8,7 +8,6 @@ nvidia-smi --> to check driver and CUDA version
 """
 
 
-
 class DataCleaning:
     def __init__(self):
         pass
@@ -16,7 +15,7 @@ class DataCleaning:
     @staticmethod
     def show_head(df: pd.DataFrame) -> pd.DataFrame:
         print(df.head())
-        print(df[['duration', 'quarter', 'year', 'age']].head())
+        print(df[['duration', 'semester', 'year', 'age']].head())
         print(df.info())
         return df
 
@@ -54,7 +53,9 @@ class DataCleaning:
         df['duration_minutes'] = df['duration'].apply(lambda x: x.total_seconds() / 60)
 
         # NB QUARTER IS 3 MONTHS PERIOD
-        df['quarter'] = df['data_erogazione'].dt.quarter
+
+        df['semester'] = (df['data_erogazione'].dt.month - 1) // 6 + 1
+        print(df['semester'].unique())
         df['year'] = df['data_erogazione'].dt.year
         df['age'] = (df['data_erogazione'] - df['data_nascita'])
         df['age'] = np.floor(df['age'].dt.days / 365)
