@@ -323,11 +323,11 @@ class ClusteringAnalyzer:
         """
         if -3000 <= increment < 3000:  # Incremento costante
             return 'CONSTANT'
-        elif -15000 <= increment < -3000:  # Incremento negativo moderato
+        elif increment < -3000:  # Incremento negativo
             return 'LOW'
         elif 3000 <= increment < 15000:  # Incremento positivo moderato
             return 'MEDIUM'
-        elif increment < -15000 or increment >= 15000:  # Incremento negativo o positivo elevato
+        elif increment >= 15000:  # Incremento positivo elevato
             return 'HIGH'
         else:
             return 'UNKNOWN'
