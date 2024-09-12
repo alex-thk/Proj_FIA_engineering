@@ -1,16 +1,18 @@
 from itertools import combinations
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from scipy.optimize import linear_sum_assignment
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score
+from scipy.spatial.distance import jensenshannon
+from scipy.optimize import linear_sum_assignment
+from sklearn.neighbors import KernelDensity
 
 
 class ClusteringAnalyzer:
     """
     Classe per l'analisi dei dati tramite clustering KMeans per trovare le feature più significative per il clustering.
+    Ora funziona per semestri.
     """
 
     def __init__(self, max_clusters=10):
@@ -30,25 +32,25 @@ class ClusteringAnalyzer:
         K = range(1, self.max_clusters + 1)
 
         for k in K:
-            model = KMeans(n_clusters=k)
+            model = KMeans(n_clusters=k, random_state=42)
             model.fit(data)
             distortions.append(model.inertia_)
 
         return distortions
 
-    def find_optimal_k_for_quarters(self, grouped_data):
-        quarter_distortions = {}
+    def find_optimal_k_for_semesters(self, grouped_data):
+        semester_distortions = {}
 
         # Calcola le distorsioni per ogni gruppo di dati
-        for (year, quarter), data in grouped_data.items():
+        for (year, semester), data in grouped_data.items():
             distortions = self.determine_optimal_clusters(data)
-            if quarter not in quarter_distortions:
-                quarter_distortions[quarter] = []
-            quarter_distortions[quarter].append(distortions)
+            if semester not in semester_distortions:
+                semester_distortions[semester] = []
+            semester_distortions[semester].append(distortions)
 
-        # Media delle distorsioni per ogni k, per ogni quadrimestre
-        optimal_k_for_quarters = {}
-        for quarter, distortions_list in quarter_distortions.items():
+        # Media delle distorsioni per ogni k, per ogni semestre
+        optimal_k_for_semesters = {}
+        for semester, distortions_list in semester_distortions.items():
             mean_distortions = np.mean(distortions_list, axis=0)
 
             # Plot per l'Elbow Method con le distorsioni medie
@@ -57,25 +59,24 @@ class ClusteringAnalyzer:
             plt.plot(K, mean_distortions, 'bx-')
             plt.xlabel('Numero di cluster')
             plt.ylabel('Distorsione media')
-            plt.title(f'Elbow Method per il quadrimestre {quarter}')
+            plt.title(f'Elbow Method per il semestre {semester}')
             plt.show()
 
-
-    def evaluate_feature_stability(self, grouped_data, optimal_k_for_quarters):
+    def evaluate_feature_stability(self, grouped_data, optimal_k_for_semesters):
         """
-        Valuta la stabilità delle feature tra anni diversi per lo stesso quadrimestre usando l'Adjusted Rand Index.
-        :param grouped_data: dizionario con i dati suddivisi per anno e quadrimestre.
-        :param optimal_k_for_quarters: dizionario con il numero ottimale di cluster per ogni quadrimestre.
-        :return: dizionario con la stabilità delle feature per ogni quadrimestre.
+        Valuta la stabilità delle feature tra anni diversi per lo stesso semestre usando l'Adjusted Rand Index.
+        :param grouped_data: dizionario con i dati suddivisi per anno e semestre.
+        :param optimal_k_for_semesters: dizionario con il numero ottimale di cluster per ogni semestre.
+        :return: dizionario con la stabilità delle feature per ogni semestre.
         """
         feature_stability = {}
 
-        # Per ogni quadrimestre, compara i cluster tra anni diversi
-        for quarter in set(k[1] for k in grouped_data.keys()):
-            years = sorted(set(k[0] for k in grouped_data.keys() if k[1] == quarter))
+        # Per ogni semestre, compara i cluster tra anni diversi
+        for semester in set(k[1] for k in grouped_data.keys()):
+            years = sorted(set(k[0] for k in grouped_data.keys() if k[1] == semester))
 
             if len(years) > 1:
-                for combination in combinations(grouped_data[(years[0], quarter)].columns,
+                for combination in combinations(grouped_data[(years[0], semester)].columns,
                                                 1):  # Considera le feature singolarmente
                     feature_name = combination[0]
 
@@ -85,8 +86,8 @@ class ClusteringAnalyzer:
                         year_prev = years[i - 1]
                         year_curr = years[i]
 
-                        data_prev = grouped_data[(year_prev, quarter)][[feature_name]]
-                        data_curr = grouped_data[(year_curr, quarter)][[feature_name]]
+                        data_prev = grouped_data[(year_prev, semester)][[feature_name]]
+                        data_curr = grouped_data[(year_curr, semester)][[feature_name]]
 
                         # Prendi il numero minimo di campioni tra i due anni
                         min_samples = min(len(data_prev), len(data_curr))
@@ -95,12 +96,12 @@ class ClusteringAnalyzer:
                         data_prev = data_prev.sample(n=min_samples, random_state=42)
                         data_curr = data_curr.sample(n=min_samples, random_state=42)
 
-                        # Recupera il numero ottimale di cluster per il quadrimestre
-                        k_optimal = optimal_k_for_quarters[quarter]
+                        # Recupera il numero ottimale di cluster per il semestre
+                        k_optimal = optimal_k_for_semesters[semester]
 
                         # Esegui il clustering per ciascun anno e ottieni le etichette
-                        model_prev = KMeans(n_clusters=k_optimal)
-                        model_curr = KMeans(n_clusters=k_optimal)
+                        model_prev = KMeans(n_clusters=k_optimal, random_state=42)
+                        model_curr = KMeans(n_clusters=k_optimal, random_state=42)
 
                         model_prev.fit(data_prev)
                         model_curr.fit(data_curr)
@@ -110,9 +111,9 @@ class ClusteringAnalyzer:
                         stability_scores.append(ari_score)
 
                     # Salva la media della stabilità per quella feature
-                    if quarter not in feature_stability:
-                        feature_stability[quarter] = {}
-                    feature_stability[quarter][feature_name] = np.mean(stability_scores)
+                    if semester not in feature_stability:
+                        feature_stability[semester] = {}
+                    feature_stability[semester][feature_name] = np.mean(stability_scores)
 
         return feature_stability
 
@@ -121,43 +122,43 @@ class ClusteringAnalyzer:
         Seleziona le prime N feature che hanno la stabilità più alta.
         :param feature_stability: dizionario con la stabilità delle feature.
         :param top_n: numero di feature da selezionare.
-        :return: dizionario con le feature significative per ogni quadrimestre.
+        :return: dizionario con le feature significative per ogni semestre.
         """
         significant_features = {}
 
-        for quarter, stability_scores in feature_stability.items():
-            print(f"scores: {stability_scores} per il quadrimestre {quarter}")
+        for semester, stability_scores in feature_stability.items():
+            print(f"scores: {stability_scores} per il semestre {semester}")
 
             # Ordina le feature in base ai punteggi di stabilità, dal più alto al più basso
             sorted_features = sorted(stability_scores.items(), key=lambda x: x[1], reverse=True)
 
             # Prendi solo le prime 'top_n' feature
-            significant_features[quarter] = [feature for feature, stability in sorted_features[:top_n]]
+            significant_features[semester] = [feature for feature, stability in sorted_features[:top_n]]
 
-        print(f"Feature significative per ciascun quadrimestre: {significant_features}")
+        print(f"Feature significative per ciascun semestre: {significant_features}")
         return significant_features
 
-    def apply_clustering_on_significant_features(self, grouped_data, optimal_k_for_quarters, significant_features):
+    def apply_clustering_on_significant_features(self, grouped_data, optimal_k_for_semesters, significant_features):
         """
-        Applica il clustering KMeans sulle feature significative per ciascun gruppo (anno, quadrimestre).
-        :param grouped_data: dizionario con i dati suddivisi per anno e quadrimestre.
-        :param optimal_k_for_quarters: dizionario con il numero ottimale di cluster per ogni quadrimestre.
-        :param significant_features: dizionario con le feature significative per ogni quadrimestre.
+        Applica il clustering KMeans sulle feature significative per ciascun gruppo (anno, semestre).
+        :param grouped_data: dizionario con i dati suddivisi per anno e semestre.
+        :param optimal_k_for_semesters: dizionario con il numero ottimale di cluster per ogni semestre.
+        :param significant_features: dizionario con le feature significative per ogni semestre.
         :return: dizionario con i risultati del clustering per ogni gruppo.
         """
         clustering_results = {}
 
-        # Applica il clustering a ciascun gruppo (anno, quadrimestre)
-        for (year, quarter), data in grouped_data.items():
+        # Applica il clustering a ciascun gruppo (anno, semestre)
+        for (year, semester), data in grouped_data.items():
             # Filtra solo le feature significative
-            if quarter in significant_features:
-                data_filtered = data[significant_features[quarter]]
+            if semester in significant_features:
+                data_filtered = data[significant_features[semester]]
 
-                # Recupera il numero ottimale di cluster per il quadrimestre
-                optimal_k = optimal_k_for_quarters[quarter]
+                # Recupera il numero ottimale di cluster per il semestre
+                optimal_k = optimal_k_for_semesters[semester]
 
                 # Inizializza e addestra il modello KMeans
-                model = KMeans(n_clusters=optimal_k)
+                model = KMeans(n_clusters=optimal_k, random_state=42)
                 # Verifica se data_filtered è vuoto
                 if data_filtered is None or len(data_filtered) == 0:
                     raise ValueError("Il dataset filtrato è vuoto.")
@@ -166,88 +167,120 @@ class ClusteringAnalyzer:
                     model.fit(data_filtered)
 
                 # Salva i risultati del clustering (etichette dei cluster)
-                clustering_results[(year, quarter)] = model.labels_
+                clustering_results[(year, semester)] = model.labels_
 
         return clustering_results
 
-    def calculate_cluster_increment(self, grouped_data, clustering_results):
+
+
+    def calculate_jsd(self, kde1, kde2, sample_points):
+        """
+        Calcola la distanza di Jensen-Shannon tra due distribuzioni KDE.
+        :param kde1: Kernel Density Estimation per il cluster 1.
+        :param kde2: Kernel Density Estimation per il cluster 2.
+        :param sample_points: punti di campionamento nello spazio delle feature.
+        :return: distanza di Jensen-Shannon.
+        """
+        p = np.exp(kde1.score_samples(sample_points))
+        q = np.exp(kde2.score_samples(sample_points))
+        return jensenshannon(p, q)
+
+    def calculate_jsd_distribution(self, features, labels):
+        """
+        Calcola la distribuzione per ciascun cluster usando Kernel Density Estimation (KDE).
+        :param features: array 2D delle feature.
+        :param labels: array delle etichette dei cluster.
+        :return: dizionario contenente le distribuzioni (KDE) per ciascun cluster.
+        """
+        unique_labels = np.unique(labels)
+        distributions = {}
+        for label in unique_labels:
+            cluster_data = features[labels == label]
+            kde = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(cluster_data)
+            distributions[label] = kde
+        return distributions
+
+    def calculate_cluster_increment(self, grouped_data, clustering_results, significant_features):
         """
         Calcola l'incremento nel numero di campioni che appartengono a cluster simili negli anni successivi
         e aggiunge questo incremento (basato sul numero reale di campioni) come nuova feature al dataset originale.
-        Usa l'Adjusted Rand Index (ARI) per misurare la similarità tra i cluster.
-        :param grouped_data: dizionario con i dati suddivisi per anno e quadrimestre.
+        Utilizza la distanza di Jensen-Shannon (JSD) per misurare la similarità tra i cluster.
+        :param grouped_data: dizionario con i dati suddivisi per anno e semestre.
         :param clustering_results: dizionario con i risultati del clustering per ogni gruppo.
+        :param significant_features: dizionario con le feature significative per ogni semestre.
         :return: dataframe aggiornato con la nuova feature 'incremento numerico'.
         """
         increments = []
-
-        # Otteniamo il primo anno disponibile per ciascun quadrimestre
         first_year = min(k[0] for k in clustering_results.keys())
-        print(f"Primo anno disponibile per i quarti: {first_year}")
+        print(f"Primo anno disponibile per i semestri: {first_year}")
 
-        # Compara i cluster tra anni per lo stesso quadrimestre
-        for quarter in set(k[1] for k in clustering_results.keys()):
-            print(f"\nElaborazione del trimestre: {quarter}")
-            years = sorted(set(k[0] for k in clustering_results.keys() if k[1] == quarter))
-            print(f"Anni disponibili per il trimestre {quarter}: {years}")
+        for semester in set(k[1] for k in clustering_results.keys()):
+            print(f"\nElaborazione del semestre: {semester}")
+            years = sorted(set(k[0] for k in clustering_results.keys() if k[1] == semester))
+            print(f"Anni disponibili per il semestre {semester}: {years}")
 
-            # Imposta incremento 0 per l'anno di partenza (2019 nel tuo caso)
+            # Verifica se ci sono feature significative per il semestre corrente
+            if semester not in significant_features:
+                print(f"Nessuna feature significativa trovata per il semestre {semester}.")
+                continue  # Salta se non ci sono feature significative
+
+            # Filtra le feature significative per il semestre
+            selected_features = significant_features[semester]
+
             if first_year in years:
-                print(f"Assegno incremento 0 per l'anno: {first_year}, trimestre: {quarter}")
-                data_first_year = grouped_data[(first_year, quarter)].copy()
-                data_first_year['incremento numerico'] = 0  # Assegna incremento 0 per tutti i campioni del primo anno
-                data_first_year['anno'] = first_year  # Aggiungi l'anno come colonna
+                print(f"Assegno incremento 0 per l'anno: {first_year}, semestre: {semester}")
+                data_first_year = grouped_data[(first_year, semester)].copy()
+                data_first_year['incremento numerico'] = 0
+                data_first_year['anno'] = first_year
                 increments.append(data_first_year)
 
             if len(years) > 1:
                 for i in range(1, len(years)):
-                    year_prev = years[i - 1]  # Anno precedente
-                    year_curr = years[i]  # Anno corrente
-                    print(f"\nConfronto tra {year_prev} e {year_curr} per il trimestre {quarter}")
+                    year_prev = years[i - 1]
+                    year_curr = years[i]
+                    print(f"\nConfronto tra {year_prev} e {year_curr} per il semestre {semester}")
 
-                    labels_prev = clustering_results[
-                        (year_prev, quarter)]  # Etichette dei cluster per l'anno precedente
-                    labels_curr = clustering_results[(year_curr, quarter)]  # Etichette dei cluster per l'anno corrente
+                    # Etichette dei cluster
+                    labels_prev = clustering_results[(year_prev, semester)]
+                    labels_curr = clustering_results[(year_curr, semester)]
 
                     print(f"Numero di campioni nell'anno precedente ({year_prev}): {len(labels_prev)}")
                     print(f"Numero di campioni nell'anno corrente ({year_curr}): {len(labels_curr)}")
 
-                    # Viene determinato il numero minimo di campioni tra i due anni (min_samples)
-                    min_samples = min(len(labels_prev), len(labels_curr))
-                    print(f"Numero minimo di campioni usati per il confronto: {min_samples}")
+                    # Feature corrispondenti per ogni anno
+                    features_prev = grouped_data[(year_prev, semester)][selected_features].values
+                    features_curr = grouped_data[(year_curr, semester)][selected_features].values
 
-                    # Campionamento per confrontare lo stesso numero di campioni
-                    labels_prev_sampled = labels_prev[:min_samples]
-                    labels_curr_sampled = labels_curr[:min_samples]
+                    # Calcola le distribuzioni KDE per i cluster di ciascun anno
+                    kde_prev = self.calculate_jsd_distribution(features_prev, labels_prev)
+                    kde_curr = self.calculate_jsd_distribution(features_curr, labels_curr)
 
-                    # Creiamo una matrice di similarità basata sull'Adjusted Rand Index (ARI)
-                    clusters_prev = np.unique(labels_prev_sampled)
-                    clusters_curr = np.unique(labels_curr_sampled)
-                    similarity_matrix = np.zeros((len(clusters_prev), len(clusters_curr)))
+                    # Definisci punti di campionamento uniformi nello spazio delle feature
+                    sample_points = np.linspace(np.min(features_prev, axis=0), np.max(features_prev, axis=0), 100)
+
+                    # Calcola la matrice di similarità (Jensen-Shannon)
+                    clusters_prev = np.unique(labels_prev)
+                    clusters_curr = np.unique(labels_curr)
+                    jsd_matrix = np.zeros((len(clusters_prev), len(clusters_curr)))
 
                     print(f"Numero di cluster nell'anno precedente: {len(clusters_prev)}")
                     print(f"Numero di cluster nell'anno corrente: {len(clusters_curr)}")
 
                     for idx_prev, cluster_prev in enumerate(clusters_prev):
                         for idx_curr, cluster_curr in enumerate(clusters_curr):
-                            # Troviamo i campioni che appartengono a ciascun cluster
-                            cluster_prev_samples = (labels_prev_sampled == cluster_prev)
-                            cluster_curr_samples = (labels_curr_sampled == cluster_curr)
+                            jsd_matrix[idx_prev, idx_curr] = self.calculate_jsd(kde_prev[cluster_prev],
+                                                                                kde_curr[cluster_curr], sample_points)
 
-                            # Calcoliamo l'ARI tra l'intero set di etichette
-                            similarity_matrix[idx_prev, idx_curr] = adjusted_rand_score(cluster_prev_samples,
-                                                                                        cluster_curr_samples)
+                    print(f"Matrice di similarità (JSD) tra cluster:\n{jsd_matrix}")
 
-                    print(f"Matrice di similarità (ARI) tra cluster:\n{similarity_matrix}")
-
-                    # Utilizziamo l'algoritmo di assegnazione per trovare la corrispondenza migliore
-                    row_ind, col_ind = linear_sum_assignment(-similarity_matrix)
+                    # Utilizza l'algoritmo di assegnazione per trovare la corrispondenza migliore
+                    row_ind, col_ind = linear_sum_assignment(jsd_matrix)
                     print(f"Risultato dell'assegnazione: row_ind = {row_ind}, col_ind = {col_ind}")
 
-                    # Otteniamo i risultati per ogni cluster corrente
-                    data_curr = grouped_data[(year_curr, quarter)].copy()
-                    data_curr['incremento numerico'] = 0  # Inizializza l'incremento a 0 per tutti i campioni
-                    data_curr['anno'] = year_curr  # Aggiungi l'anno come colonna
+                    # Ottieni i risultati per ogni cluster corrente
+                    data_curr = grouped_data[(year_curr, semester)].copy()
+                    data_curr['incremento numerico'] = 0
+                    data_curr['anno'] = year_curr
 
                     for idx_prev, idx_curr in zip(row_ind, col_ind):
                         print(f"Processando il cluster {idx_prev} dell'anno precedente e {idx_curr} dell'anno corrente")
@@ -274,7 +307,7 @@ class ClusteringAnalyzer:
         # Combina tutti i dati con incrementi in un unico dataframe
         final_dataset_with_increments = pd.concat(increments)
 
-        # Filtra i dati per rimuovere quelli del primo anno (ad esempio, 2019)
+        # Filtra i dati per rimuovere quelli del primo anno
         final_dataset_with_increments = final_dataset_with_increments[
             final_dataset_with_increments['anno'] != first_year]
 
@@ -282,21 +315,20 @@ class ClusteringAnalyzer:
         final_dataset_with_increments = final_dataset_with_increments.drop(columns=['anno'])
 
         print("Elaborazione completa, dataset finale creato senza i dati del primo anno e senza la colonna anno.")
-
         return final_dataset_with_increments
 
     def categorize_increment(self, increment):
         """
         Funzione per discretizzare i valori di incremento.
         """
-        if increment > 5000:
+        if increment > 15000:
             return 'HIGH'
-        elif -5000 <= increment <= 5000:
-            if abs(increment) <= 1000:  # Costante, vicino a zero
+        elif -15000 <= increment <= 15000:
+            if abs(increment) <= 5000:  # Costante, vicino a zero
                 return 'CONSTANT'
             else:
                 return 'MEDIUM'
-        elif increment < -5000:
+        elif increment < -15000:
             return 'LOW'
         else:
             return 'UNKNOWN'
