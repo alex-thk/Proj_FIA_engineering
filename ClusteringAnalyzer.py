@@ -321,15 +321,14 @@ class ClusteringAnalyzer:
         """
         Funzione per discretizzare i valori di incremento.
         """
-        if increment > 15000:
-            return 'HIGH'
-        elif -15000 <= increment <= 15000:
-            if abs(increment) <= 5000:  # Costante, vicino a zero
-                return 'CONSTANT'
-            else:
-                return 'MEDIUM'
-        elif increment < -15000:
+        if -3000 <= increment < 3000:  # Incremento costante
+            return 'CONSTANT'
+        elif -15000 <= increment < -3000:  # Incremento negativo moderato
             return 'LOW'
+        elif 3000 <= increment < 15000:  # Incremento positivo moderato
+            return 'MEDIUM'
+        elif increment < -15000 or increment >= 15000:  # Incremento negativo o positivo elevato
+            return 'HIGH'
         else:
             return 'UNKNOWN'
 
