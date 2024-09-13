@@ -116,17 +116,20 @@ ablative_groups = {
 # Dizionario per salvare le performance
 performance = {}
 
+# Copia del dataset originale
+dataset_originale = df.copy()
+
 # Iteriamo su ogni gruppo di feature nel dizionario ablative_groups
 for scenario, columns_to_remove in ablative_groups.items():
 
     print(f"provo scenario {scenario}..")
     # Manteniamo sempre le colonne 'semester' e 'year'
-    columns_to_keep = [col for col in df.columns if col not in columns_to_remove]
+    columns_to_keep = [col for col in dataset_originale.columns if col not in columns_to_remove]
 
     print(f"colonne che si hanno a quedsta iterazione {columns_to_keep}")
 
     # Creiamo il subset delle feature
-    df = df[columns_to_keep]
+    df = dataset_originale[columns_to_keep]
 
     print(df.head())
 
