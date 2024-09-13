@@ -104,13 +104,19 @@ print(df.columns)
 
 # Definiamo i diversi gruppi di feature da rimuovere in ogni iterazione
 ablative_groups = {
-    'tutte': [],  # Prima iterazione con tutte le feature
+    """'tutte': [],  # Prima iterazione con tutte le feature
     'senza_prof_sanitario': [col for col in df.columns if col.startswith('codice_tipologia_professionista_sanitario')],
     'senza_residenze': [col for col in df.columns if col.startswith('residenza_')],
     'senza_sesso': ['sesso_female', 'sesso_male'],
     'senza_struttura': [col for col in df.columns if col.startswith('codice_tipologia_struttura_erogazione')],
     'senza_duration': ['duration_minutes'],
-    'senza_age': ['age']
+    'senza_age': ['age']"""
+    'prof_sanitario': [col for col in df.columns if col.startswith('codice_tipologia_professionista_sanitario')],
+    'residenze': [col for col in df.columns if col.startswith('residenza_')],
+    'sesso': ['sesso_female', 'sesso_male'],
+    'struttura': [col for col in df.columns if col.startswith('codice_tipologia_struttura_erogazione')],
+    'duration': ['duration_minutes'],
+    'age': ['age']
 }
 
 # Dizionario per salvare le performance
@@ -124,9 +130,9 @@ for scenario, columns_to_remove in ablative_groups.items():
 
     print(f"provo scenario {scenario}..")
     # Manteniamo sempre le colonne 'semester' e 'year'
-    columns_to_keep = [col for col in dataset_originale.columns if col not in columns_to_remove]
+    columns_to_keep = [col for col in dataset_originale.columns if col in columns_to_remove] + ['semester', 'year']
 
-    print(f"colonne che si hanno a quedsta iterazione {columns_to_keep}")
+    print(f"colonne che si hanno a questa iterazione {columns_to_keep}")
 
     # Creiamo il subset delle feature
     df = dataset_originale[columns_to_keep]
@@ -247,7 +253,7 @@ for scenario, columns_to_remove in ablative_groups.items():
     performance[scenario] = best_score
 
 # Convertiamo i risultati in un DataFrame per analizzarli
-results_df = pd.DataFrame(list(performance.items()), columns=['Ablation_Scenario', 'Accuracy'])
+results_df = pd.DataFrame(list(performance.items()), columns=['Ablation_Scenario', 'Performance'])
 
 print(f'i risultati della ricerca ablativa sono {results_df}')
 
