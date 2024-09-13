@@ -14,8 +14,10 @@ class ClusteringModel:
         self.n_clusters = n_clusters  # number of clusters
         self.model = None  # KMeans or KPrototypes instance
 
+        print(f"il numero di cluster che arrivano a clustering model durante l'istanziamento è: {self.n_clusters}")
+
         if self.algorithm == 'kmeans':
-            self.model = KMeans(n_clusters=n_clusters, init='k-means++', random_state=42)
+            self.model = KMeans(n_clusters=self.n_clusters, init='k-means++', random_state=42)
         elif self.algorithm == 'kprototypes':
             self.model = KPrototypes(n_clusters=n_clusters, init='Huang')  # instance of KPrototypes
         else:

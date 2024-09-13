@@ -5,7 +5,7 @@ import numpy as np
 
 
 class ObjectiveFunction:
-    def __init__(self, data, labels, cluster_labels):
+    def __init__(self, data, labels, cluster_labels, num_clusters):
         """
         Initialization of the class ObjectiveFunction
         :param data: complete dataset in numpy array
@@ -15,7 +15,7 @@ class ObjectiveFunction:
         self.data = data
         self.labels = labels
         self.cluster_labels = cluster_labels
-        self.num_clusters = len(set(cluster_labels))
+        self.num_clusters = num_clusters
 
     def purity(self):
         total_elements = len(self.labels)  # calculate the total number of elements
@@ -62,10 +62,16 @@ class ObjectiveFunction:
         print("normalizzazione dei risultati..")
         normalized_purity = min(max(purity_score, 0), 1)
         normalized_silhouette = min(max(silhouette_score_, 0), 1)
+        print("purity normalizzata: ", normalized_purity)
+        print("silhouette normalizzata: ", normalized_silhouette)
+        penalty = self.penalty()
+        print("numero di cluster: ", self.num_clusters)
+        print("penalità: ", penalty)
 
         # Calcola la media delle metriche normalizzate e sottrai la penalità
         print("calcolo del punteggio finale..")
-        final_score_ = (normalized_purity + normalized_silhouette) / 2 - self.penalty()
+        final_score_ = (normalized_purity + normalized_silhouette) / 2 - penalty
+        print("punteggio finale: ", final_score_)
 
         return final_score_
 

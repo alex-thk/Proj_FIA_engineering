@@ -39,8 +39,10 @@ class HyperparameterTuner:
 
             print("istanzio classe clustering model..")
 
+            n_clusters = params['n_clusters']
+
             # Istanzia il modello di clustering con i parametri attuali
-            clustering_model = ClusteringModel(algorithm=self.algorithm, n_clusters=params['n_clusters'])
+            clustering_model = ClusteringModel(algorithm=self.algorithm, n_clusters=n_clusters)
 
             print("faccio fit..")
 
@@ -49,7 +51,7 @@ class HyperparameterTuner:
             print("istanzio la classe Objective funtion..")
 
             # Calcola la funzione obiettivo
-            objective_function = ObjectiveFunction(data=self.data, labels=self.labels, cluster_labels=results['labels'])
+            objective_function = ObjectiveFunction(data=self.data, labels=self.labels, cluster_labels=results['labels'], num_clusters=n_clusters)
 
             print("calcolo il punteggio finale..")
 
