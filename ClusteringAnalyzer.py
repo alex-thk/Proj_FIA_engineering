@@ -1,11 +1,11 @@
 from itertools import combinations
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from sklearn.cluster import KMeans
-from sklearn.metrics import adjusted_rand_score
-from scipy.spatial.distance import jensenshannon
 from scipy.optimize import linear_sum_assignment
+from scipy.spatial.distance import jensenshannon
+from sklearn.cluster import KMeans
 from sklearn.neighbors import KernelDensity
 
 
@@ -62,55 +62,54 @@ class ClusteringAnalyzer:
             plt.title(f'Elbow Method per il semestre {semester}')
             plt.show()
 
-    def evaluate_feature_stability(self, grouped_data, optimal_k_for_semesters):
+    def calculate_jsd_distribution_single_feature(self, data_prev, data_curr, sample_points):
         """
-        Valuta la stabilità delle feature tra anni diversi per lo stesso semestre usando l'Adjusted Rand Index.
+        Calcola la distanza di Jensen-Shannon tra due distribuzioni di una singola feature.
+        :param data_prev: Dati del primo anno (una singola feature).
+        :param data_curr: Dati del secondo anno (una singola feature).
+        :param sample_points: Punti di campionamento nello spazio dei dati.
+        :return: Distanza di Jensen-Shannon (JSD) tra le due distribuzioni.
+        """
+        kde_prev = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(data_prev)
+        kde_curr = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(data_curr)
+
+        p = np.exp(kde_prev.score_samples(sample_points))
+        q = np.exp(kde_curr.score_samples(sample_points))
+
+        return jensenshannon(p, q)
+
+    def evaluate_feature_stability_jsd(self, grouped_data, optimal_k_for_semesters):
+        """
+        Valuta la stabilità delle feature tra anni diversi per lo stesso semestre usando la distanza di Jensen-Shannon (JSD).
         :param grouped_data: dizionario con i dati suddivisi per anno e semestre.
         :param optimal_k_for_semesters: dizionario con il numero ottimale di cluster per ogni semestre.
         :return: dizionario con la stabilità delle feature per ogni semestre.
         """
         feature_stability = {}
 
-        # Per ogni semestre, compara i cluster tra anni diversi
         for semester in set(k[1] for k in grouped_data.keys()):
             years = sorted(set(k[0] for k in grouped_data.keys() if k[1] == semester))
 
             if len(years) > 1:
-                for combination in combinations(grouped_data[(years[0], semester)].columns,
-                                                1):  # Considera le feature singolarmente
+                for combination in combinations(grouped_data[(years[0], semester)].columns, 1):
                     feature_name = combination[0]
 
-                    # Valuta la similarità dei cluster tra gli anni per quella feature
                     stability_scores = []
                     for i in range(1, len(years)):
                         year_prev = years[i - 1]
                         year_curr = years[i]
 
-                        data_prev = grouped_data[(year_prev, semester)][[feature_name]]
-                        data_curr = grouped_data[(year_curr, semester)][[feature_name]]
+                        data_prev = grouped_data[(year_prev, semester)][[feature_name]].values
+                        data_curr = grouped_data[(year_curr, semester)][[feature_name]].values
 
-                        # Prendi il numero minimo di campioni tra i due anni
-                        min_samples = min(len(data_prev), len(data_curr))
+                        # Definisci i punti di campionamento per la JSD
+                        sample_points = np.linspace(np.min(data_prev), np.max(data_prev), 100).reshape(-1, 1)
 
-                        # Campiona gli stessi campioni da entrambi i set
-                        data_prev = data_prev.sample(n=min_samples, random_state=42)
-                        data_curr = data_curr.sample(n=min_samples, random_state=42)
+                        # Calcola la distanza di Jensen-Shannon tra la distribuzione della feature nei due anni
+                        jsd_score = self.calculate_jsd_distribution_single_feature(data_prev, data_curr, sample_points)
+                        stability_scores.append(jsd_score)
 
-                        # Recupera il numero ottimale di cluster per il semestre
-                        k_optimal = optimal_k_for_semesters[semester]
-
-                        # Esegui il clustering per ciascun anno e ottieni le etichette
-                        model_prev = KMeans(n_clusters=k_optimal, random_state=42)
-                        model_curr = KMeans(n_clusters=k_optimal, random_state=42)
-
-                        model_prev.fit(data_prev)
-                        model_curr.fit(data_curr)
-
-                        # Calcola la similarità tra i cluster usando l'Adjusted Rand Index (ARI)
-                        ari_score = adjusted_rand_score(model_prev.labels_, model_curr.labels_)
-                        stability_scores.append(ari_score)
-
-                    # Salva la media della stabilità per quella feature
+                    # In questo caso, un punteggio più basso indica maggiore stabilità (distribuzioni più simili)
                     if semester not in feature_stability:
                         feature_stability[semester] = {}
                     feature_stability[semester][feature_name] = np.mean(stability_scores)
@@ -119,7 +118,7 @@ class ClusteringAnalyzer:
 
     def select_significant_features(self, feature_stability, top_n=2):
         """
-        Seleziona le prime N feature che hanno la stabilità più alta.
+        Seleziona le prime N feature che hanno la stabilità più alta (minima JSD).
         :param feature_stability: dizionario con la stabilità delle feature.
         :param top_n: numero di feature da selezionare.
         :return: dizionario con le feature significative per ogni semestre.
@@ -127,10 +126,10 @@ class ClusteringAnalyzer:
         significant_features = {}
 
         for semester, stability_scores in feature_stability.items():
-            print(f"scores: {stability_scores} per il semestre {semester}")
+            print(f"Stabilità delle feature (JSD): {stability_scores} per il semestre {semester}")
 
-            # Ordina le feature in base ai punteggi di stabilità, dal più alto al più basso
-            sorted_features = sorted(stability_scores.items(), key=lambda x: x[1], reverse=True)
+            # Ordina le feature in base ai punteggi di stabilità (minima JSD), dal più basso al più alto
+            sorted_features = sorted(stability_scores.items(), key=lambda x: x[1])
 
             # Prendi solo le prime 'top_n' feature
             significant_features[semester] = [feature for feature, stability in sorted_features[:top_n]]
