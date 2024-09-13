@@ -76,6 +76,8 @@ class ClusteringAnalyzer:
         p = np.exp(kde_prev.score_samples(sample_points))
         q = np.exp(kde_curr.score_samples(sample_points))
 
+        p = np.clip(p, 1e-10, None)
+        q = np.clip(q, 1e-10, None)
         return jensenshannon(p, q)
 
     def evaluate_feature_stability_jsd(self, grouped_data, optimal_k_for_semesters):
@@ -272,6 +274,9 @@ class ClusteringAnalyzer:
 
                     print(f"Matrice di similarità (JSD) tra cluster:\n{jsd_matrix}")
 
+                    # Utilizza np.nan_to_num per sostituire i NaN con 0
+                    jsd_matrix = np.nan_to_num(jsd_matrix, nan=1.0)
+
                     # Utilizza l'algoritmo di assegnazione per trovare la corrispondenza migliore
                     row_ind, col_ind = linear_sum_assignment(jsd_matrix)
                     print(f"Risultato dell'assegnazione: row_ind = {row_ind}, col_ind = {col_ind}")
@@ -320,13 +325,13 @@ class ClusteringAnalyzer:
         """
         Funzione per discretizzare i valori di incremento.
         """
-        if -3000 <= increment < 3000:  # Incremento costante
+        if -300 <= increment < 300:  # Incremento costante
             return 'CONSTANT'
-        elif increment < -3000:  # Incremento negativo
+        elif increment < -300:  # Incremento negativo
             return 'LOW'
-        elif 3000 <= increment < 15000:  # Incremento positivo moderato
+        elif 300 <= increment < 5000:  # Incremento positivo moderato
             return 'MEDIUM'
-        elif increment >= 15000:  # Incremento positivo elevato
+        elif increment >= 5000:  # Incremento positivo elevato
             return 'HIGH'
         else:
             return 'UNKNOWN'
