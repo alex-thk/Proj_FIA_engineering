@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 class PostProcessing:
-    def __init__(self, dataframe_for_visuals, dataframe_for_silhouette, best_params, best_score, best_labels, best_centroids):
+    def __init__(self, dataframe_for_visuals, dataframe_for_silhouette, best_params, best_score, best_centroids):
         self.dataframe = dataframe_for_visuals
         self.dataframe_for_silhouette = dataframe_for_silhouette
         self.dataframes_by_cluster = {}
@@ -60,7 +60,33 @@ class PostProcessing:
             conto_Umbria = df['residenza_Umbria'].sum().item()
             conto_Valle_daosta = df['residenza_Valle daosta'].sum().item()
             conto_Veneto = df['residenza_Veneto'].sum().item()
+            conto_ASN= df['codice_tipologia_professionista_sanitario_ASN'].sum().item()
+            conto_DIE = df['codice_tipologia_professionista_sanitario_DIE'].sum().item()
+            conto_EDP = df['codice_tipologia_professionista_sanitario_EDP'].sum().item()
+            conto_FIS = df['codice_tipologia_professionista_sanitario_FIS'].sum().item()
+            conto_INF = df['codice_tipologia_professionista_sanitario_INF'].sum().item()
+            conto_LPD = df['codice_tipologia_professionista_sanitario_LPD'].sum().item()
+            conto_OST = df['codice_tipologia_professionista_sanitario_OST'].sum().item()
+            conto_POD = df['codice_tipologia_professionista_sanitario_POD'].sum().item()
+            conto_PSI = df['codice_tipologia_professionista_sanitario_PSI'].sum().item()
+            conto_TNP = df['codice_tipologia_professionista_sanitario_TNP'].sum().item()
+            conto_TRO = df['codice_tipologia_professionista_sanitario_TRO'].sum().item()
+            conto_TRP = df['codice_tipologia_professionista_sanitario_TRP'].sum().item()
 
+            '''
+            'codice_tipologia_professionista_sanitario_ASN',
+            'codice_tipologia_professionista_sanitario_DIE',
+            'codice_tipologia_professionista_sanitario_EDP',
+            'codice_tipologia_professionista_sanitario_FIS',
+            'codice_tipologia_professionista_sanitario_INF',
+            'codice_tipologia_professionista_sanitario_LPD',
+            'codice_tipologia_professionista_sanitario_OST',
+            'codice_tipologia_professionista_sanitario_POD',
+            'codice_tipologia_professionista_sanitario_PSI',
+            'codice_tipologia_professionista_sanitario_TNP',
+            'codice_tipologia_professionista_sanitario_TRO',
+            'codice_tipologia_professionista_sanitario_TRP
+            '''
             numero_record = df.shape[0]
 
             # Calcola la silhouette media
@@ -108,7 +134,19 @@ class PostProcessing:
                 'numero_record': numero_record,
                 'silhouette_media': silhouette_media,
                 'classe_comune_incremento': classe_comune,
-                'purezza_cluster': purezza_cluster
+                'purezza_cluster': purezza_cluster,
+                'conto_ASN': conto_ASN,
+                'conto_DIE': conto_DIE,
+                'conto_EDP': conto_EDP,
+                'conto_FIS': conto_FIS,
+                'conto_INF': conto_INF,
+                'conto_LPD': conto_LPD,
+                'conto_OST': conto_OST,
+                'conto_POD': conto_POD,
+                'conto_PSI': conto_PSI,
+                'conto_TNP': conto_TNP,
+                'conto_TRO': conto_TRO,
+                'conto_TRP': conto_TRP
             }
 
     def save_stats_to_json(self, file_name='stats_by_cluster.json'):
@@ -118,7 +156,6 @@ class PostProcessing:
             'best_score': self.best_score,
             'stats_by_cluster': self.stats_by_cluster,
             'best_centroids': self.best_centroids.tolist(),  # Converti in lista se è un array numpy
-            'best_labels': self.best_labels.tolist(),  # Converti in lista se è un array numpy
         }
         with open(file_name, 'w') as f:
             json.dump(data_to_save, f, indent=4)
@@ -155,7 +192,19 @@ if __name__ == '__main__':
         'residenza_Valle daosta': np.random.randint(0, 2, size=100),
         'residenza_Veneto': np.random.randint(0, 2, size=100),
         'incremento': np.random.randint(0, 4, size=100),
-        'cluster': np.random.randint(0, 4, size=100)
+        'cluster': np.random.randint(0, 4, size=100),
+        'codice_tipologia_professionista_sanitario_ASN': np.random.randint(0, 2, size=100),
+        'codice_tipologia_professionista_sanitario_DIE': np.random.randint(0, 2, size=100),
+        'codice_tipologia_professionista_sanitario_EDP': np.random.randint(0, 2, size=100),
+        'codice_tipologia_professionista_sanitario_FIS': np.random.randint(0, 2, size=100),
+        'codice_tipologia_professionista_sanitario_INF': np.random.randint(0, 2, size=100),
+        'codice_tipologia_professionista_sanitario_LPD': np.random.randint(0, 2, size=100),
+        'codice_tipologia_professionista_sanitario_OST': np.random.randint(0, 2, size=100),
+        'codice_tipologia_professionista_sanitario_POD': np.random.randint(0, 2, size=100),
+        'codice_tipologia_professionista_sanitario_PSI': np.random.randint(0, 2, size=100),
+        'codice_tipologia_professionista_sanitario_TNP': np.random.randint(0, 2, size=100),
+        'codice_tipologia_professionista_sanitario_TRO': np.random.randint(0, 2, size=100),
+        'codice_tipologia_professionista_sanitario_TRP': np.random.randint(0, 2, size=100),
     }
 
     dataframe_for_visuals = pd.DataFrame(data)
@@ -172,7 +221,7 @@ if __name__ == '__main__':
     best_centroids = np.random.rand(4, 3)
 
     # Esegui l'istanza di PostProcessing
-    post_processing = PostProcessing(dataframe_for_visuals, dataframe_for_silhouette, best_params, best_score, best_labels, best_centroids)
+    post_processing = PostProcessing(dataframe_for_visuals, dataframe_for_silhouette, best_params, best_score, best_centroids)
     post_processing.process_clusters()
 
     # Salva le statistiche in un file JSON
