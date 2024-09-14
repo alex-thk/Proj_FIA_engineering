@@ -6,7 +6,7 @@ from sklearn.preprocessing import StandardScaler
 
 
 class PostProcessing:
-    def __init__(self, dataframe_for_visuals, dataframe_for_silhouette, best_params, best_score, best_centroids):
+    def __init__(self, dataframe_for_visuals, dataframe_for_silhouette, best_params, best_score, best_centroids, best_labels):
         self.dataframe = dataframe_for_visuals
         self.dataframe_for_silhouette = dataframe_for_silhouette
         self.dataframes_by_cluster = {}
@@ -33,14 +33,14 @@ class PostProcessing:
 
         # Calcola le statistiche per ogni cluster
         for cluster_name, df in self.dataframes_by_cluster.items():
-            media_age = df['age'].mean().item()  # Media della colonna 'age'
-            media_duration = df['duration_minutes'].mean().item()  # Media della colonna 'duration_minutes'
-            conto_sesso_male = df['sesso_male'].sum().item()  # Conteggio dei True nella colonna 'sesso_male'
-            conto_sesso_female = df['sesso_female'].sum().item()  # Conteggio dei True nella colonna 'sesso_female'
+            #  media_age = df['age'].mean().item()  # Media della colonna 'age'
+            #  media_duration = df['duration_minutes'].mean().item()  # Media della colonna 'duration_minutes'
+            #  conto_sesso_male = df['sesso_male'].sum().item()  # Conteggio dei True nella colonna 'sesso_male'
+            #  conto_sesso_female = df['sesso_female'].sum().item()  # Conteggio dei True nella colonna 'sesso_female'
 
             # Conteggio delle zone di residenza
             # Conteggio per ciascuna regione
-            conto_Abruzzo = df['residenza_Abruzzo'].sum().item()
+            '''conto_Abruzzo = df['residenza_Abruzzo'].sum().item()
             conto_Basilicata = df['residenza_Basilicata'].sum().item()
             conto_Calabria = df['residenza_Calabria'].sum().item()
             conto_Campania = df['residenza_Campania'].sum().item()
@@ -59,7 +59,7 @@ class PostProcessing:
             conto_Trentino_alto_adige = df['residenza_Trentino alto adige'].sum().item()
             conto_Umbria = df['residenza_Umbria'].sum().item()
             conto_Valle_daosta = df['residenza_Valle daosta'].sum().item()
-            conto_Veneto = df['residenza_Veneto'].sum().item()
+            conto_Veneto = df['residenza_Veneto'].sum().item()'''
             conto_ASN= df['codice_tipologia_professionista_sanitario_ASN'].sum().item()
             conto_DIE = df['codice_tipologia_professionista_sanitario_DIE'].sum().item()
             conto_EDP = df['codice_tipologia_professionista_sanitario_EDP'].sum().item()
@@ -72,6 +72,8 @@ class PostProcessing:
             conto_TNP = df['codice_tipologia_professionista_sanitario_TNP'].sum().item()
             conto_TRO = df['codice_tipologia_professionista_sanitario_TRO'].sum().item()
             conto_TRP = df['codice_tipologia_professionista_sanitario_TRP'].sum().item()
+            conto_sesso_male = df['sesso_male'].sum().item()
+            conto_sesso_female = df['sesso_female'].sum().item()
 
             '''
             'codice_tipologia_professionista_sanitario_ASN',
@@ -107,34 +109,12 @@ class PostProcessing:
 
             # Memorizza le statistiche in un dizionario
             self.stats_by_cluster[cluster_name] = {
-                'media_age': media_age,
-                'media_duration_minutes': media_duration,
+                # 'media_age': media_age,
+                # 'media_duration_minutes': media_duration,
                 'conto_sesso_male': conto_sesso_male,
                 'conto_sesso_female': conto_sesso_female,
-                'conto_Abruzzo': conto_Abruzzo,
-                'conto_Basilicata': conto_Basilicata,
-                'conto_Calabria': conto_Calabria,
-                'conto_Campania': conto_Campania,
-                'conto_Emilia_romagna': conto_Emilia_romagna,
-                'conto_Friuli_venezia_giulia': conto_Friuli_venezia_giulia,
-                'conto_Lazio': conto_Lazio,
-                'conto_Liguria': conto_Liguria,
-                'conto_Lombardia': conto_Lombardia,
-                'conto_Marche': conto_Marche,
-                'conto_Molise': conto_Molise,
-                'conto_Piemonte': conto_Piemonte,
-                'conto_Puglia': conto_Puglia,
-                'conto_Sardegna': conto_Sardegna,
-                'conto_Sicilia': conto_Sicilia,
-                'conto_Toscana': conto_Toscana,
-                'conto_Trentino_alto_adige': conto_Trentino_alto_adige,
-                'conto_Umbria': conto_Umbria,
-                'conto_Valle_daosta': conto_Valle_daosta,
-                'conto_Veneto': conto_Veneto,
-                'numero_record': numero_record,
-                'silhouette_media': silhouette_media,
-                'classe_comune_incremento': classe_comune,
-                'purezza_cluster': purezza_cluster,
+                'frazione_male': conto_sesso_male / numero_record,
+                'frazione_female': conto_sesso_female / numero_record,
                 'conto_ASN': conto_ASN,
                 'conto_DIE': conto_DIE,
                 'conto_EDP': conto_EDP,
@@ -146,7 +126,11 @@ class PostProcessing:
                 'conto_PSI': conto_PSI,
                 'conto_TNP': conto_TNP,
                 'conto_TRO': conto_TRO,
-                'conto_TRP': conto_TRP
+                'conto_TRP': conto_TRP,
+                'numero_record': numero_record,
+                'silhouette_media': silhouette_media,
+                'classe_comune_incremento': classe_comune,
+                'purezza_cluster': purezza_cluster,
             }
 
     def save_stats_to_json(self, file_name='stats_by_cluster.json'):
@@ -167,30 +151,10 @@ if __name__ == '__main__':
     # Creazione di un dataframe di esempio
     np.random.seed(42)  # Fissiamo il seed per ripetibilità
     data = {
-        'age': np.random.randint(18, 70, size=100),
-        'duration_minutes': np.random.randint(10, 120, size=100),
+        # 'age': np.random.randint(18, 70, size=100),
+        # 'duration_minutes': np.random.randint(10, 120, size=100),
         'sesso_male': np.random.randint(0, 2, size=100),
         'sesso_female': np.random.randint(0, 2, size=100),
-        'residenza_Abruzzo': np.random.randint(0, 2, size=100),
-        'residenza_Basilicata': np.random.randint(0, 2, size=100),
-        'residenza_Calabria': np.random.randint(0, 2, size=100),
-        'residenza_Campania': np.random.randint(0, 2, size=100),
-        'residenza_Emilia romagna': np.random.randint(0, 2, size=100),
-        'residenza_Friuli venezia giulia': np.random.randint(0, 2, size=100),
-        'residenza_Lazio': np.random.randint(0, 2, size=100),
-        'residenza_Liguria': np.random.randint(0, 2, size=100),
-        'residenza_Lombardia': np.random.randint(0, 2, size=100),
-        'residenza_Marche': np.random.randint(0, 2, size=100),
-        'residenza_Molise': np.random.randint(0, 2, size=100),
-        'residenza_Piemonte': np.random.randint(0, 2, size=100),
-        'residenza_Puglia': np.random.randint(0, 2, size=100),
-        'residenza_Sardegna': np.random.randint(0, 2, size=100),
-        'residenza_Sicilia': np.random.randint(0, 2, size=100),
-        'residenza_Toscana': np.random.randint(0, 2, size=100),
-        'residenza_Trentino alto adige': np.random.randint(0, 2, size=100),
-        'residenza_Umbria': np.random.randint(0, 2, size=100),
-        'residenza_Valle daosta': np.random.randint(0, 2, size=100),
-        'residenza_Veneto': np.random.randint(0, 2, size=100),
         'incremento': np.random.randint(0, 4, size=100),
         'cluster': np.random.randint(0, 4, size=100),
         'codice_tipologia_professionista_sanitario_ASN': np.random.randint(0, 2, size=100),
@@ -208,10 +172,11 @@ if __name__ == '__main__':
     }
 
     dataframe_for_visuals = pd.DataFrame(data)
+    print(dataframe_for_visuals.head())
 
     # Copiamo il dataframe e applichiamo lo scaling solo a certe colonne per silhouette
     dataframe_for_silhouette = dataframe_for_visuals.copy()
-    features_to_scale = ['age', 'duration_minutes', 'incremento']
+    features_to_scale = ['incremento']
     scaler = StandardScaler()
     dataframe_for_silhouette[features_to_scale] = scaler.fit_transform(dataframe_for_silhouette[features_to_scale])
 
@@ -221,7 +186,7 @@ if __name__ == '__main__':
     best_centroids = np.random.rand(4, 3)
 
     # Esegui l'istanza di PostProcessing
-    post_processing = PostProcessing(dataframe_for_visuals, dataframe_for_silhouette, best_params, best_score, best_centroids)
+    post_processing = PostProcessing(dataframe_for_visuals, dataframe_for_silhouette, best_params, best_score, best_centroids, best_labels)
     post_processing.process_clusters()
 
     # Salva le statistiche in un file JSON
