@@ -52,8 +52,3 @@ class Visualizer:
 
         plt.tight_layout()
         plt.show()
-
-if __name__ == '__main__':
-    df = pd.read_csv('final_dataset_with_clusters.csv')
-    list_of_cols = ['duration_minutes', 'age', 'incremento', 'cluster']
-    Visualizer.scatter_plots(df, list_of_cols)
