@@ -11,7 +11,7 @@ from outlier_detector import outlier_detector
 from post_processing import PostProcessing
 from visualizer import Visualizer
 
-file = 'challenge_campus_biomedico_2024.parquet'
+file = '../challenge_campus_biomedico_2024.parquet'
 df = pd.read_parquet(file)
 
 cleaner = DataCleaning()
@@ -206,7 +206,7 @@ for r in range(2, len(ablative_groups) + 1):
 
         # Definizione della griglia di iperparametri per il tuning
         param_grid = {
-            'n_clusters': [5]  # numero di cluster che vogliamo testare
+            'n_clusters': [3]  # numero di cluster che vogliamo testare
         }
 
         print(final_dataset_with_increments.info())

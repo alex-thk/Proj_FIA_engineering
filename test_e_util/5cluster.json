@@ -1,0 +1,57 @@
+{"Combination":"prof_sanitario, residenze","Performance":0.3688106414}
+{"Combination":"prof_sanitario, sesso","Performance":0.511999172}
+{"Combination":"prof_sanitario, struttura","Performance":0.4920880837}
+{"Combination":"prof_sanitario, duration","Performance":0.4356491949}
+{"Combination":"prof_sanitario, age","Performance":0.4577076859}
+{"Combination":"residenze, sesso","Performance":0.4543660123}
+{"Combination":"residenze, struttura","Performance":0.4454212947}
+{"Combination":"residenze, duration","Performance":0.401871372}
+{"Combination":"residenze, age","Performance":0.4058050876}
+{"Combination":"sesso, struttura","Performance":0.4790413537}
+{"Combination":"sesso, duration","Performance":0.4824529719}
+{"Combination":"sesso, age","Performance":0.4887837975}
+{"Combination":"struttura, duration","Performance":0.4526474664}
+{"Combination":"struttura, age","Performance":0.4475779263}
+{"Combination":"duration, age","Performance":0.4433732807}
+{"Combination":"prof_sanitario, residenze, sesso","Performance":0.37860442}
+{"Combination":"prof_sanitario, residenze, struttura","Performance":0.3591748424}
+{"Combination":"prof_sanitario, residenze, duration","Performance":0.3725987587}
+{"Combination":"prof_sanitario, residenze, age","Performance":0.3759791995}
+{"Combination":"prof_sanitario, sesso, struttura","Performance":0.4326565368}
+{"Combination":"prof_sanitario, sesso, duration","Performance":0.4084596304}
+{"Combination":"prof_sanitario, sesso, age","Performance":0.4156901712}
+{"Combination":"prof_sanitario, struttura, duration","Performance":0.3989124783}
+{"Combination":"prof_sanitario, struttura, age","Performance":0.4023560641}
+{"Combination":"prof_sanitario, duration, age","Performance":0.3855938691}
+{"Combination":"residenze, sesso, struttura","Performance":0.3838926237}
+{"Combination":"residenze, sesso, duration","Performance":0.3756511793}
+{"Combination":"residenze, sesso, age","Performance":0.3819677217}
+{"Combination":"residenze, struttura, duration","Performance":0.3745147328}
+{"Combination":"residenze, struttura, age","Performance":0.3808130283}
+{"Combination":"residenze, duration, age","Performance":0.3621031031}
+{"Combination":"sesso, struttura, duration","Performance":0.4132925996}
+{"Combination":"sesso, struttura, age","Performance":0.4054449886}
+{"Combination":"sesso, duration, age","Performance":0.3992135049}
+{"Combination":"struttura, duration, age","Performance":0.3899380556}
+{"Combination":"prof_sanitario, residenze, sesso, struttura","Performance":0.3732842477}
+{"Combination":"prof_sanitario, residenze, sesso, duration","Performance":0.354930912}
+{"Combination":"prof_sanitario, residenze, sesso, age","Performance":0.3661343139}
+{"Combination":"prof_sanitario, residenze, struttura, duration","Performance":0.3551338718}
+{"Combination":"prof_sanitario, residenze, struttura, age","Performance":0.358576542}
+{"Combination":"prof_sanitario, residenze, duration, age","Performance":0.3467955831}
+{"Combination":"prof_sanitario, sesso, struttura, duration","Performance":0.3753129439}
+{"Combination":"prof_sanitario, sesso, struttura, age","Performance":0.379706534}
+{"Combination":"prof_sanitario, sesso, duration, age","Performance":0.3665332958}
+{"Combination":"prof_sanitario, struttura, duration, age","Performance":0.3665195718}
+{"Combination":"residenze, sesso, struttura, duration","Performance":0.3569154297}
+{"Combination":"residenze, sesso, struttura, age","Performance":0.361517196}
+{"Combination":"residenze, sesso, duration, age","Performance":0.3481085669}
+{"Combination":"residenze, struttura, duration, age","Performance":0.3450622229}
+{"Combination":"sesso, struttura, duration, age","Performance":0.3638087198}
+{"Combination":"prof_sanitario, residenze, sesso, struttura, duration","Performance":0.3518572034}
+{"Combination":"prof_sanitario, residenze, sesso, struttura, age","Performance":0.3430467679}
+{"Combination":"prof_sanitario, residenze, sesso, duration, age","Performance":0.334266831}
+{"Combination":"prof_sanitario, residenze, struttura, duration, age","Performance":0.3334782064}
+{"Combination":"prof_sanitario, sesso, struttura, duration, age","Performance":0.3505810485}
+{"Combination":"residenze, sesso, struttura, duration, age","Performance":0.3375203055}
+{"Combination":"prof_sanitario, residenze, sesso, struttura, duration, age","Performance":0.3229548826}
