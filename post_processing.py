@@ -33,7 +33,7 @@ class PostProcessing:
 
         # Calcola le statistiche per ogni cluster
         for cluster_name, df in self.dataframes_by_cluster.items():
-            #  media_age = df['age'].mean().item()  # Media della colonna 'age'
+            media_age = df['age'].mean().item()  # Media della colonna 'age'
             #  media_duration = df['duration_minutes'].mean().item()  # Media della colonna 'duration_minutes'
             #  conto_sesso_male = df['sesso_male'].sum().item()  # Conteggio dei True nella colonna 'sesso_male'
             #  conto_sesso_female = df['sesso_female'].sum().item()  # Conteggio dei True nella colonna 'sesso_female'
@@ -59,7 +59,7 @@ class PostProcessing:
             conto_Trentino_alto_adige = df['residenza_Trentino alto adige'].sum().item()
             conto_Umbria = df['residenza_Umbria'].sum().item()
             conto_Valle_daosta = df['residenza_Valle daosta'].sum().item()
-            conto_Veneto = df['residenza_Veneto'].sum().item()'''
+            conto_Veneto = df['residenza_Veneto'].sum().item()
             conto_ASN= df['codice_tipologia_professionista_sanitario_ASN'].sum().item()
             conto_DIE = df['codice_tipologia_professionista_sanitario_DIE'].sum().item()
             conto_EDP = df['codice_tipologia_professionista_sanitario_EDP'].sum().item()
@@ -71,7 +71,7 @@ class PostProcessing:
             conto_PSI = df['codice_tipologia_professionista_sanitario_PSI'].sum().item()
             conto_TNP = df['codice_tipologia_professionista_sanitario_TNP'].sum().item()
             conto_TRO = df['codice_tipologia_professionista_sanitario_TRO'].sum().item()
-            conto_TRP = df['codice_tipologia_professionista_sanitario_TRP'].sum().item()
+            conto_TRP = df['codice_tipologia_professionista_sanitario_TRP'].sum().item()'''
             conto_sesso_male = df['sesso_male'].sum().item()
             conto_sesso_female = df['sesso_female'].sum().item()
 
@@ -109,13 +109,13 @@ class PostProcessing:
 
             # Memorizza le statistiche in un dizionario
             self.stats_by_cluster[cluster_name] = {
-                # 'media_age': media_age,
+                'media_age': media_age,
                 # 'media_duration_minutes': media_duration,
                 'conto_sesso_male': conto_sesso_male,
                 'conto_sesso_female': conto_sesso_female,
                 'frazione_male': conto_sesso_male / numero_record,
                 'frazione_female': conto_sesso_female / numero_record,
-                'conto_ASN': conto_ASN,
+                """'conto_ASN': conto_ASN,
                 'conto_DIE': conto_DIE,
                 'conto_EDP': conto_EDP,
                 'conto_FIS': conto_FIS,
@@ -126,7 +126,7 @@ class PostProcessing:
                 'conto_PSI': conto_PSI,
                 'conto_TNP': conto_TNP,
                 'conto_TRO': conto_TRO,
-                'conto_TRP': conto_TRP,
+                'conto_TRP': conto_TRP,"""
                 'numero_record': numero_record,
                 'silhouette_media': silhouette_media,
                 'classe_comune_incremento': classe_comune,
