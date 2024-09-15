@@ -6,7 +6,19 @@ from sklearn.preprocessing import StandardScaler
 
 
 class PostProcessing:
+    """
+    Classe per il post-processing dei risultati del clustering
+    """
     def __init__(self, dataframe_for_visuals, dataframe_for_silhouette, best_params, best_score, best_centroids, best_labels):
+        """
+        Inizializzazione della la classe PostProcessing
+        :param dataframe_for_visuals: DataFrame con le features originali e le colonne 'cluster' e "incremento"
+        :param dataframe_for_silhouette: DataFrame con le features scalate e la colonna 'cluster' e "incremento" scalato
+        :param best_params: Iperparametri migliori trovati dal tuning
+        :param best_score: Punteggio migliore ottenuto dal tuning
+        :param best_centroids: Centroidi migliori trovati dal clustering
+        :param best_labels: Etichette migliori trovate dal clustering
+        """
         self.dataframe = dataframe_for_visuals
         self.dataframe_for_silhouette = dataframe_for_silhouette
         self.dataframes_by_cluster = {}
@@ -17,11 +29,13 @@ class PostProcessing:
         self.best_centroids = best_centroids
 
     def process_clusters(self):
-
+        """
+        Calcola le statistiche per ciascun cluster e le memorizza in un dizionario che diventa attributo della classe
+        """
         # Calcola una sola volta i silhouette samples per tutti i punti del dataset
         silhouette_values = silhouette_samples(
             self.dataframe_for_silhouette.drop(columns=['cluster']),  # Rimuovi la colonna 'cluster' per il calcolo delle silhouette
-            self.dataframe_for_silhouette['cluster']  # Utilizza la colonna 'cluster' per le etichette
+            self.dataframe_for_silhouette['cluster']  # Utilizza la colonna 'cluster' per le etichette dei cluster
         )
 
         # Trova tutti i valori unici della colonna 'cluster'
@@ -134,7 +148,9 @@ class PostProcessing:
             }
 
     def save_stats_to_json(self, file_name='stats_by_cluster.json'):
-        # Salva il dizionario stats_by_cluster in un file JSON
+        """
+        Salva le statistiche dei cluster in un file JSON
+        """
         data_to_save = {
             'best_params': self.best_params,
             'best_score': self.best_score,
@@ -145,8 +161,8 @@ class PostProcessing:
             json.dump(data_to_save, f, indent=4)
 
 
-# Esegui il test
-# Esegui il test
+# test per classe PostProcessing
+"""
 if __name__ == '__main__':
     # Creazione di un dataframe di esempio
     np.random.seed(42)  # Fissiamo il seed per ripetibilità
@@ -194,3 +210,4 @@ if __name__ == '__main__':
 
     # Stampa i risultati in formato leggibile
     print(json.dumps(post_processing.stats_by_cluster, indent=4))
+"""
