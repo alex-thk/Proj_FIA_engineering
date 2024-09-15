@@ -6,10 +6,15 @@ from kmodes.kprototypes import KPrototypes
 
 class ClusteringModel:
     """
-    Class for clustering data using KMeans or KPrototypes
+    Classe che effettua il clustering dei dati, il kmeans è completamente implementato ma non il kprototypes
     """
 
     def __init__(self, algorithm, n_clusters):
+        """
+        Inizializzazione della classe ClusteringModel
+        :param algorithm: Algoritmo di clustering da utilizzare (kmeans o kprototypes)
+        :param n_clusters: Numero di cluster da creare
+        """
         self.algorithm = algorithm  # string that can be 'kmeans' or 'kprototypes'
         self.n_clusters = n_clusters  # number of clusters
         self.model = None  # KMeans or KPrototypes instance
@@ -25,11 +30,10 @@ class ClusteringModel:
 
     def fit(self, x, categorical=None):
         """
-        Fit the clustering model to the data and return a dictionary with the clustering results.
-
+        Esegue il clustering dei dati.
         :param x: DataFrame che rappresenta i dati da clusterizzare.
         :param categorical: Indici delle colonne categoriche (solo per KPrototypes).
-        :return: Dizionario con labels, centroids.
+        :return: Dizionario con labels, centroids (e colonne categoriali per KPrototypes).
         """
         results = {}
 
