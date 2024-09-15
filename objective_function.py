@@ -5,12 +5,15 @@ import numpy as np
 
 
 class ObjectiveFunction:
+    """
+    Classe che calcola la funzione obiettivo del clustering
+    """
     def __init__(self, data, labels, cluster_labels, num_clusters):
         """
-        Initialization of the class ObjectiveFunction
-        :param data: complete dataset in numpy array
-        :param labels: right labels of class incremento in numpy array 1D
-        :param cluster_labels: numpy array 1D with cluster labels
+        Inizializzazione della classe ObjectiveFunction
+        :param data: dataset completo in array numpy
+        :param labels: labels classe incremento in array numpy 1D
+        :param cluster_labels: labels cluster in array numpy 1D
         """
         self.data = data
         self.labels = labels
@@ -18,20 +21,28 @@ class ObjectiveFunction:
         self.num_clusters = num_clusters
 
     def purity(self):
+        """
+        Metodo che calcola la purità totale del dataset considerando ogni singolo cluster alla volta
+        :return: Purity score normalizzato tra 0 e 1
+        """
         total_elements = len(self.labels)  # calculate the total number of elements
         purity_sum = 0
 
-        for cluster in set(self.cluster_labels):  # loop over each cluster
-            cluster_indices = np.where(self.cluster_labels == cluster)[0]  # index of points in this cluster, [0] to get the array of indices of samples in this cluster
-            cluster_labels_ = self.labels[cluster_indices]  # true labels of points in this cluster
+        for cluster in set(self.cluster_labels):  # loop su ogni cluster
+            cluster_indices = np.where(self.cluster_labels == cluster)[0]  # trovo gli indici dei punti in questo cluster
+            cluster_labels_ = self.labels[cluster_indices]  # labels di classe dei punti in questo cluster
 
-            most_common_class = max(np.bincount(cluster_labels_))  # find the most common class
+            most_common_class = max(np.bincount(cluster_labels_))  # trovo la classe piu comune
 
-            purity_sum += most_common_class  # add the most common class to the sum
+            purity_sum += most_common_class  # aggiungo la classe più comune alla somma
 
-        return purity_sum / total_elements  # return the purity
+        return purity_sum / total_elements  # restituisco la purità
 
     def silhouette(self):
+        """
+        Metodo che calcola l'indice di silhouette per l'intero insieme di dati
+        :return: Silhouette score normalizzato tra 0 e 1
+        """
         print("chiamata metodo silhouette..")
         # Calcola l'indice di silhouette per l'intero insieme di dati
         if len(set(self.cluster_labels)) > 1:
@@ -47,10 +58,17 @@ class ObjectiveFunction:
             return 0  # Se c'è solo un cluster, silhouette non è definito
 
     def penalty(self):
-        # Penalità proporzionale al numero di cluster
+        """
+        Metodo che calcola la penalità in base al numero di cluster
+        :return: Penalità
+        """
         return 0.05 * self.num_clusters
 
     def compute_final_score(self):
+        """
+        Metodo che calcola il punteggio finale normalizzato
+        :return: Punteggio finale normalizzato tra 0 e 1
+        """
         # Calcola le metriche normalizzate
         print("calcolo purita..)")
         purity_score = self.purity()
@@ -76,6 +94,7 @@ class ObjectiveFunction:
         return final_score_
 
 
+# Test del codice commentato
 """
 if __name__ == "__main__":
     # Creiamo un piccolo dataset sintetico con make_blobs
