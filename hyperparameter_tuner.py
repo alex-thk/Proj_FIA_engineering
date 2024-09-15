@@ -7,6 +7,9 @@ from objective_function import ObjectiveFunction
 
 
 class HyperparameterTuner:
+    """
+    Classe per l'ottimizzazione degli iperparametri di un modello di clustering.
+    """
     def __init__(self, algorithm, param_grid, data, labels):
         """
         Inizializzatore per la classe HyperparameterTuner
@@ -25,7 +28,7 @@ class HyperparameterTuner:
         """
         Esegue il Grid Search sugli iperparametri per trovare la combinazione ottimale.
         Salva labels, centroidi e score per ogni combinazione di parametri testati.
-        :return: La migliore combinazione di iperparametri, il relativo punteggio e i risultati del miglior clustering.
+        :return: Dizionario con i migliori parametri, il punteggio migliore, le etichette e i centroidi migliori
         """
         best_score = -np.inf
         best_params = None
@@ -87,6 +90,7 @@ class HyperparameterTuner:
         }
 
 
+# codice per testare il tuner
 '''
 # Test del tuner protetto da __name__
 if __name__ == "__main__":
