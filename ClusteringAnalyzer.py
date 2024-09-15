@@ -11,8 +11,8 @@ from sklearn.neighbors import KernelDensity
 
 class ClusteringAnalyzer:
     """
-    Classe per l'analisi dei dati tramite clustering KMeans per trovare le feature più significative per il clustering.
-    Ora funziona per semestri.
+    Classe per la creazione della variabile incremento numerico e la sua discretizzazione a partire dai risultati del
+    clustering KMeans effettuato sulle feature significative per ciascun semestre e anno.
     """
 
     def __init__(self, max_clusters=10):
@@ -25,8 +25,9 @@ class ClusteringAnalyzer:
 
     def determine_optimal_clusters(self, data):
         """
-        Determina il numero ottimale di cluster usando l'Elbow Method.
+        Determina la distorsione per un numero di cluster variabile da 1 a max_clusters.
         :param data: i dati su cui eseguire il clustering.
+        :return: una lista di distorsioni per ogni valore di k.
         """
         distortions = []
         K = range(1, self.max_clusters + 1)
@@ -39,6 +40,11 @@ class ClusteringAnalyzer:
         return distortions
 
     def find_optimal_k_for_semesters(self, grouped_data):
+        """
+        Trova il grafico che mostra il numero ottimale di cluster per ciascuno dei due semestri.
+        :param grouped_data:
+        :return:
+        """
         semester_distortions = {}
 
         # Calcola le distorsioni per ogni gruppo di dati
@@ -49,7 +55,6 @@ class ClusteringAnalyzer:
             semester_distortions[semester].append(distortions)
 
         # Media delle distorsioni per ogni k, per ogni semestre
-        optimal_k_for_semesters = {}
         for semester, distortions_list in semester_distortions.items():
             mean_distortions = np.mean(distortions_list, axis=0)
 
@@ -80,11 +85,10 @@ class ClusteringAnalyzer:
         q = np.clip(q, 1e-10, None)
         return jensenshannon(p, q)
 
-    def evaluate_feature_stability_jsd(self, grouped_data, optimal_k_for_semesters):
+    def evaluate_feature_stability_jsd(self, grouped_data):
         """
         Valuta la stabilità delle feature tra anni diversi per lo stesso semestre usando la distanza di Jensen-Shannon (JSD).
         :param grouped_data: dizionario con i dati suddivisi per anno e semestre.
-        :param optimal_k_for_semesters: dizionario con il numero ottimale di cluster per ogni semestre.
         :return: dizionario con la stabilità delle feature per ogni semestre.
         """
         feature_stability = {}
@@ -324,6 +328,8 @@ class ClusteringAnalyzer:
     def categorize_increment(self, increment):
         """
         Funzione per discretizzare i valori di incremento.
+        :param increment: valore di incremento numerico.
+        :return: categoria di incremento (LOW, MEDIUM, HIGH, CONSTANT).
         """
         if -300 <= increment < 300:  # Incremento costante
             return 'CONSTANT'
@@ -340,6 +346,8 @@ class ClusteringAnalyzer:
         """
         Aggiunge la nuova feature 'increment_category' al dataset finale
         sulla base della discretizzazione dei valori di incremento.
+        :param final_dataset_with_increments: dataset finale con la feature 'incremento numerico'.
+        :return: dataset finale con la nuova feature 'incremento'.
         """
         # Applica la funzione per ogni valore di incremento
         final_dataset_with_increments['incremento'] = final_dataset_with_increments['incremento numerico'].apply(
