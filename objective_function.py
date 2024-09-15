@@ -1,6 +1,6 @@
 from sklearn.cluster import KMeans
 from sklearn.datasets import make_blobs
-from sklearn.metrics import silhouette_score
+from sklearn.metrics import silhouette_score, silhouette_samples
 import numpy as np
 
 
@@ -53,7 +53,14 @@ class ObjectiveFunction:
             print(f"Lunghezza del dataset: {len(self.data)}")
             # Verifica la lunghezza del vettore delle etichette
             print(f"Lunghezza delle etichette dei cluster: {len(self.cluster_labels)}")
-            return silhouette_score(self.data, self.cluster_labels)
+            # Calcola silhouette per ogni singolo punto
+            silhouette_values = silhouette_samples(self.data, self.cluster_labels)
+            print(f"Silhouette values (before normalization): {silhouette_values}")
+
+            # Normalizza ogni valore di silhouette tra 0 e 1
+            silhouette_values_normalized = (silhouette_values + 1) / 2
+            print(f"Silhouette values (after normalization): {silhouette_values_normalized}")
+            return np.mean(silhouette_values_normalized)  # Calcola la media dei valori di silhouette normalizzati
         else:
             return 0  # Se c'è solo un cluster, silhouette non è definito
 
@@ -79,23 +86,22 @@ class ObjectiveFunction:
         # Normalizzazione delle metriche tra 0 e 1
         print("normalizzazione dei risultati..")
         normalized_purity = min(max(purity_score, 0), 1)
-        normalized_silhouette = min(max(silhouette_score_, 0), 1)
         print("purity normalizzata: ", normalized_purity)
-        print("silhouette normalizzata: ", normalized_silhouette)
+        print("silhouette normalizzata: ", silhouette_score_)
         penalty = self.penalty()
         print("numero di cluster: ", self.num_clusters)
         print("penalità: ", penalty)
 
         # Calcola la media delle metriche normalizzate e sottrai la penalità
         print("calcolo del punteggio finale..")
-        final_score_ = (normalized_purity + normalized_silhouette) / 2 - penalty
+        final_score_ = (normalized_purity + silhouette_score_) / 2 - penalty
         print("punteggio finale: ", final_score_)
 
         return final_score_
 
 
 # Test del codice commentato
-"""
+
 if __name__ == "__main__":
     # Creiamo un piccolo dataset sintetico con make_blobs
     # Generate 2D points from 3 clusters
@@ -106,7 +112,7 @@ if __name__ == "__main__":
     cluster_labels = kmeans.fit_predict(data)  # Etichette di cluster assegnate dal modello KMeans
 
     # Creiamo l'oggetto ObjectiveFunction con i dati sintetici
-    obj_function = ObjectiveFunction(data, labels, cluster_labels)
+    obj_function = ObjectiveFunction(data, labels, cluster_labels, 3)
 
     # Calcoliamo la purezza
     purity = obj_function.purity()
@@ -118,5 +124,3 @@ if __name__ == "__main__":
 
     # Calcoliamo il punteggio finale
     final_score = obj_function.compute_final_score()
-    print(f"Final Score: {final_score}")
-"""
