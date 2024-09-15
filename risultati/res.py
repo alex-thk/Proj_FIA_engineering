@@ -90,11 +90,17 @@ for year in sorted(df['year'].unique()):
     # Sum of 'codice_tipologia_professionista_sanitario'
     codice_tipologia_sum = df_year['codice_tipologia_professionista_sanitario'].value_counts().to_dict()
 
+    # Calculate the average duration in minutes and average age
+    duration_avg = df_year['duration_minutes'].mean()  # Assuming 'duration_minutes' is the column for duration
+    age_avg = df_year['age'].mean()  # Assuming 'age' is the column for age
+
     # Store the results in the dictionary
     results[year] = {
         'residenza_sum': residenza_sum,
         'sesso_sum': sesso_sum,
-        'codice_tipologia_sum': codice_tipologia_sum
+        'codice_tipologia_sum': codice_tipologia_sum,
+        'duration_avg': duration_avg,  # Add average duration
+        'age_avg': age_avg  # Add average age
     }
 # Convert the keys to strings before dumping to JSON
 results_str_keys = {str(year): data for year, data in results.items()}

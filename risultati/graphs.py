@@ -78,3 +78,32 @@ plt.grid(True)
 plt.legend()
 plt.tight_layout()
 plt.show()
+
+# Estrazione dei dati per la durata media in minuti per ogni anno
+durata_media = [data[anno]['duration_avg'] for anno in anni]
+
+# Creazione del grafico a linee per la durata media
+plt.figure(figsize=(10,6))
+plt.plot(anni, durata_media, marker='o', color='green', label='Durata Media (minuti)')
+plt.title('Andamento della durata media delle teleassistenze (2019-2022)')
+plt.xlabel('Anno')
+plt.ylabel('Durata Media (minuti)')
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# Estrazione dei dati per l'età media per ogni anno
+eta_media = [data[anno]['age_avg'] for anno in anni]
+
+# Creazione del grafico a linee per l'età media
+plt.figure(figsize=(10,6))
+plt.plot(anni, eta_media, marker='o', color='orange', label='Età Media')
+plt.title('Andamento dell\'età media delle persone assistite (2019-2022)')
+plt.xlabel('Anno')
+plt.ylabel('Età Media')
+plt.grid(True)
+plt.legend()
+plt.tight_layout()
+plt.show()
+
