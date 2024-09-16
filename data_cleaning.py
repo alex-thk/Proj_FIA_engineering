@@ -55,7 +55,7 @@ class DataCleaning:
         # NB QUARTER IS 3 MONTHS PERIOD
 
         df['semester'] = (df['data_erogazione'].dt.month - 1) // 6 + 1
-        print(df['semester'].unique())
+        # print(df['semester'].unique())
         df['year'] = df['data_erogazione'].dt.year
         df['age'] = (df['data_erogazione'] - df['data_nascita'])
         df['age'] = np.floor(df['age'].dt.days / 365)

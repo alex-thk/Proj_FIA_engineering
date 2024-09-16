@@ -73,7 +73,7 @@ class PostProcessing:
             conto_Trentino_alto_adige = df['residenza_Trentino alto adige'].sum().item()
             conto_Umbria = df['residenza_Umbria'].sum().item()
             conto_Valle_daosta = df['residenza_Valle daosta'].sum().item()
-            conto_Veneto = df['residenza_Veneto'].sum().item()
+            conto_Veneto = df['residenza_Veneto'].sum().item()'''
             conto_ASN= df['codice_tipologia_professionista_sanitario_ASN'].sum().item()
             conto_DIE = df['codice_tipologia_professionista_sanitario_DIE'].sum().item()
             conto_EDP = df['codice_tipologia_professionista_sanitario_EDP'].sum().item()
@@ -85,24 +85,10 @@ class PostProcessing:
             conto_PSI = df['codice_tipologia_professionista_sanitario_PSI'].sum().item()
             conto_TNP = df['codice_tipologia_professionista_sanitario_TNP'].sum().item()
             conto_TRO = df['codice_tipologia_professionista_sanitario_TRO'].sum().item()
-            conto_TRP = df['codice_tipologia_professionista_sanitario_TRP'].sum().item()'''
+            conto_TRP = df['codice_tipologia_professionista_sanitario_TRP'].sum().item()
             conto_sesso_male = df['sesso_male'].sum().item()
             conto_sesso_female = df['sesso_female'].sum().item()
 
-            '''
-            'codice_tipologia_professionista_sanitario_ASN',
-            'codice_tipologia_professionista_sanitario_DIE',
-            'codice_tipologia_professionista_sanitario_EDP',
-            'codice_tipologia_professionista_sanitario_FIS',
-            'codice_tipologia_professionista_sanitario_INF',
-            'codice_tipologia_professionista_sanitario_LPD',
-            'codice_tipologia_professionista_sanitario_OST',
-            'codice_tipologia_professionista_sanitario_POD',
-            'codice_tipologia_professionista_sanitario_PSI',
-            'codice_tipologia_professionista_sanitario_TNP',
-            'codice_tipologia_professionista_sanitario_TRO',
-            'codice_tipologia_professionista_sanitario_TRP
-            '''
             numero_record = df.shape[0]
 
             # Calcola la silhouette media
@@ -129,7 +115,7 @@ class PostProcessing:
                 'conto_sesso_female': conto_sesso_female,
                 'frazione_male': conto_sesso_male / numero_record,
                 'frazione_female': conto_sesso_female / numero_record,
-                """'conto_ASN': conto_ASN,
+                'conto_ASN': conto_ASN,
                 'conto_DIE': conto_DIE,
                 'conto_EDP': conto_EDP,
                 'conto_FIS': conto_FIS,
@@ -140,7 +126,7 @@ class PostProcessing:
                 'conto_PSI': conto_PSI,
                 'conto_TNP': conto_TNP,
                 'conto_TRO': conto_TRO,
-                'conto_TRP': conto_TRP,"""
+                'conto_TRP': conto_TRP,
                 'numero_record': numero_record,
                 'silhouette_media': silhouette_media,
                 'classe_comune_incremento': classe_comune,
