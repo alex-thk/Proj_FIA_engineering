@@ -8,7 +8,7 @@ Questo progetto si propone di analizzare e clusterizzare i dati sulle teleassist
 
 ### Descrizione
 
-Il dataset utilizzato in questo progetto è denominato `challenge_campus_biomedico_2024.parquet` e contiene informazioni relative agli appuntamenti biomedici nel campus per l'anno 2024. I dati includono dettagli sui pazienti, sui professionisti sanitari, sulle strutture erogatrici e sulle caratteristiche degli appuntamenti.
+Il dataset utilizzato in questo progetto è denominato `challenge_campus_biomedico_2024.parquet` e contiene informazioni relative alle teleassistenze effettuate dal 2019 al 2022 in Italia. I dati includono dettagli sui pazienti, sui professionisti sanitari, sulle strutture erogatrici e sulle caratteristiche degli appuntamenti.
 
 ### Caratteristiche Principali
 
@@ -56,7 +56,7 @@ Il dataset utilizzato in questo progetto è denominato `challenge_campus_biomedi
 - **Trasformazione dei Dati**: Mappatura delle regioni di residenza e creazione di variabili dummy.
 - **Rilevazione degli Outlier**: Identificazione e rimozione di valori anomali nelle variabili chiave.
 - **Standardizzazione**: Normalizzazione delle feature per migliorare le prestazioni degli algoritmi di clustering.
-- **Analisi di Clustering er la creazione di Incremento**: Determinazione del numero ottimale di cluster, valutazione della stabilità delle feature e clustering per ogni semestre di ogni anno. Infine confronto tra raggruppamenti relativi allo stesso semestre di anni successivi per valutare l'incremento delle teleassistenze.
+- **Analisi di Clustering per la creazione di Incremento**: Determinazione del numero ottimale di cluster, valutazione della stabilità delle feature e clustering per ogni semestre di ogni anno. Infine confronto tra raggruppamenti relativi allo stesso semestre di anni successivi per valutare l'incremento delle teleassistenze.
 - **Clustering Supervisionato**: Applicazione di un algoritmo di clustering supervisionato con target incremento per individuare le caratteristiche simili fra campioni che hanno pari incremento.
 - **Post-Elaborazione**: Creazione di statistiche per ogni cluster e salvataggio dei risultati finali.
 

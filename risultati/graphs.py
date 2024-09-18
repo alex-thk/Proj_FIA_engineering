@@ -11,18 +11,20 @@ anni = list(data.keys())
 regioni = list(data['2019']['residenza_sum'].keys())
 
 # 1. Creazione di istogrammi per la distribuzione delle residenze per regione per ogni anno
-fig, axs = plt.subplots(2, 2, figsize=(15, 12))
+import matplotlib.pyplot as plt
 
+# Supponiamo che 'anni' e 'regioni' siano già definite.
 for i, anno in enumerate(anni):
-    ax = axs[i // 2, i % 2]
+    plt.figure(figsize=(10, 6))
     residenze = [data[anno]['residenza_sum'][regione] for regione in regioni]
-    ax.bar(regioni, residenze, color='skyblue')
-    ax.set_xticklabels(regioni, rotation=90)
-    ax.set_title(f'Distribuzione delle teleassistenze per regione ({anno})')
-    ax.set_ylabel('Numero di teleassistenze')
+    plt.bar(regioni, residenze, color='skyblue')
+    plt.xticks(rotation=90)
+    plt.title(f'Distribuzione delle teleassistenze per regione ({anno})')
+    plt.ylabel('Numero di teleassistenze')
 
-plt.tight_layout()
-plt.show()
+    # Salva il grafico in un file
+    plt.tight_layout()
+    plt.show()
 
 # 2. Creazione dei grafici a torta per la distribuzione di genere per ogni anno
 sesso_per_anno = {anno: data[anno]['sesso_sum'] for anno in anni}
