@@ -100,7 +100,7 @@ class PostProcessing:
 
             # Calcola la classe più comune rispetto alla variabile 'incremento'
             classe_incremento_comune = df['incremento'].mode()[0]
-            mappatura_incremento = {0: 'CONSTANT', 1: 'LOW', 2: 'MEDIUM', 3: 'HIGH'}
+            mappatura_incremento = {0: 'LOW', 1: 'CONSTANT', 2: 'MEDIUM', 3: 'HIGH'}
             classe_comune = mappatura_incremento[classe_incremento_comune]
 
             # Calcola la purezza del cluster
