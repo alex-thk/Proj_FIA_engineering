@@ -66,8 +66,8 @@ Il dataset utilizzato in questo progetto è denominato `challenge_campus_biomedi
 1. **Clona il repository**
 
    ```bash
-   git clone https://github.com/tuo-username/tuo-repo.git
-   cd tuo-repo
+   git clone https://github.com/alex-thk/Proj_FIA_engineering
+   cd Proj_FIA_engineering
 
 2. **Crea un ambiente virtuale**
 
@@ -84,7 +84,7 @@ Il dataset utilizzato in questo progetto è denominato `challenge_campus_biomedi
 
 1. **Posiziona il file dei dati**
 
-    Assicurati che il file `challenge_campus_biomedico_2024.parquet` sia nella cartella `data/`.
+    Assicurati che il file `challenge_campus_biomedico_2024.parquet` sia nella cartella `Proj_FIA_engineering/`.
 
 2. **Esegui lo script principale**
 
@@ -92,5 +92,5 @@ Il dataset utilizzato in questo progetto è denominato `challenge_campus_biomedi
     python main.py
     ```
 
-    Questo script eseguirà tutti i passaggi di pulizia, trasformazione, clustering e post-elaborazione, salvando i risultati finali in `final_dataset_with_categories.csv` e le statistiche dei cluster in `stats_by_cluster.json`.
+    Questo script eseguirà tutti i passaggi di pulizia, trasformazione, clustering e post-elaborazione, salvando i risultati finali in `dataset_per_post_proc.csv` e le statistiche dei cluster in `stats_by_cluster.json`.
 
